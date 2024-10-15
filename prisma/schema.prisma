@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Employee {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  fname       String
+  lname       String
+  email       String
+  employeeId  String @unique
+  department  String
+  contact     String
+  role        String
+}
+
+model Asset {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  assetId     String @unique
+  name        String
+  assignedTo  String?
+  condition   String
+  project     String?
+  qrCodeUrl   String
+}
+
+model Task {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  summary       String
+  description   String
+  start         DateTime
+  end           DateTime
+  assigneeEmail String
+  creatorEmail  String
+  calendarEventId String
+}
+
+model Document {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  templateId    String
+  newRefId      String
+  documentUrl   String
+}
