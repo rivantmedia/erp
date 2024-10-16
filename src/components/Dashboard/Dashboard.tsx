@@ -5,6 +5,10 @@ import React, { useState } from "react";
 import { Logo } from "@/components/Logo";
 import styles from "./Dashboard.module.css";
 import Link from "next/link";
+import { IconLogout } from "@tabler/icons-react";
+import { UserButton } from "../UserButton/UserButton";
+import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const linksData = [
   { label: "Tasks", href: "tasks" },
@@ -16,6 +20,7 @@ const linksData = [
 export default function Dashboard({ children }: { children: React.ReactNode }) {
   const [opened, setOpened] = useState(false);
   const [activeLink, setActiveLink] = useState("Tasks");
+  const router = useRouter();
 
   const toggle = () => setOpened((o) => !o);
 
@@ -47,10 +52,28 @@ export default function Dashboard({ children }: { children: React.ReactNode }) {
       <AppShell.Header>
         <Group h="100%" px="md">
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <Logo />
+          <Link href="/">
+            <Logo />
+          </Link>
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar p="md">{links}</AppShell.Navbar>
+      <AppShell.Navbar p="md">
+        <div className={styles.navbarMain}>{links}</div>
+        <div className={styles.footer}>
+          <UserButton />
+
+          <div
+            className={styles.link2}
+            onClick={() => {
+              signOut();
+              router.push("/");
+            }}
+          >
+            <IconLogout className={styles.linkIcon} stroke={1.5} />
+            <span>Logout</span>
+          </div>
+        </div>
+      </AppShell.Navbar>
       <AppShell.Main>{children}</AppShell.Main>
     </AppShell>
   );
