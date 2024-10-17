@@ -1,10 +1,12 @@
 import { NextRequest } from "next/server";
 import { PrismaClient, Prisma } from "@prisma/client";
+import { getServerSession } from "next-auth";
 
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
   const data = await req.json();
+  data.employeeId = parseInt(data.employeeId);
   try {
     const employee = await prisma.employee.create({
       data: data,
@@ -29,8 +31,19 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
+  const session = await getServerSession();
+
+  if (!session) {
+    return Response.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
   try {
-    const employees = await prisma.employee.findMany();
+    const employees = await prisma.employee.findMany({
+      where: {
+        email: { not: session?.user.email ?? "" },
+      },
+      orderBy: { employeeId: "asc" },
+    });
     return Response.json(employees, { status: 200 });
   } catch (error) {
     console.log("Failed to get employees", error);

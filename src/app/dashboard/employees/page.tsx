@@ -1,3 +1,11 @@
+"use client";
+
+import { EmployeeTable } from "@/components/EmployeeTable";
+
 export default function Main() {
-  return <div>Employees</div>;
+  return (
+    <div>
+      <EmployeeTable />
+    </div>
+  );
 }

@@ -12,7 +12,7 @@ model Employee {
   fname       String
   lname       String
   email       String @unique
-  employeeId  String @unique
+  employeeId  Int    @unique
   department  String
   contact     String
   role        String
@@ -20,9 +20,9 @@ model Employee {
 
 model Asset {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
-  assetId     String @unique
+  assetId     Int @unique
   name        String
-  assignedTo  String?
+  assignedTo  Int?
   condition   String
   project     String?
   qrCodeUrl   String
