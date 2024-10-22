@@ -11,8 +11,10 @@ import {
 	rem
 } from "@mantine/core";
 import { IconPencil, IconTrash } from "@tabler/icons-react";
+import { useSession } from "next-auth/react";
 
 export default function EmployeeTable() {
+	const { data: session } = useSession();
 	const { employees } = useEmployees() as {
 		employees: {
 			fname: string;
@@ -21,6 +23,7 @@ export default function EmployeeTable() {
 			email: string;
 			contact: number;
 			employeeId: number;
+			sAdmin: boolean;
 		}[];
 	};
 	const rows = employees.map((employee) => (
@@ -51,29 +54,31 @@ export default function EmployeeTable() {
 				<Text fz="sm">{employee.contact}</Text>
 			</Table.Td>
 			<Table.Td>
-				<Group
-					gap={0}
-					justify="flex-end"
-				>
-					<ActionIcon
-						variant="subtle"
-						color="gray"
+				{session?.user.sAdmin && (
+					<Group
+						gap={0}
+						justify="flex-end"
 					>
-						<IconPencil
-							style={{ width: rem(16), height: rem(16) }}
-							stroke={1.5}
-						/>
-					</ActionIcon>
-					<ActionIcon
-						variant="subtle"
-						color="red"
-					>
-						<IconTrash
-							style={{ width: rem(16), height: rem(16) }}
-							stroke={1.5}
-						/>
-					</ActionIcon>
-				</Group>
+						<ActionIcon
+							variant="subtle"
+							color="gray"
+						>
+							<IconPencil
+								style={{ width: rem(16), height: rem(16) }}
+								stroke={1.5}
+							/>
+						</ActionIcon>
+						<ActionIcon
+							variant="subtle"
+							color="red"
+						>
+							<IconTrash
+								style={{ width: rem(16), height: rem(16) }}
+								stroke={1.5}
+							/>
+						</ActionIcon>
+					</Group>
+				)}
 			</Table.Td>
 		</Table.Tr>
 	));

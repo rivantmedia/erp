@@ -55,11 +55,10 @@ function CreateEmployeeForm() {
 				{ min: 2 },
 				"Last name must be more than 2 characters long"
 			),
-			email: isEmail("Invalid email"),
-			employeeId: isInRange(
-				{ min: 1 },
-				"Employee ID must be more than 0"
-			),
+			email: isEmail("Invalid email") && checkEmail,
+			employeeId:
+				isInRange({ min: 1 }, "Employee ID must be more than 0") &&
+				checkID,
 			department: isNotEmpty("Department is required"),
 			role: isNotEmpty("Role is required"),
 			contact: isInRange(
@@ -69,17 +68,22 @@ function CreateEmployeeForm() {
 		}
 	});
 
-	async function handleForm(values: EmployeeFormValues) {
-		const employee = employees.find((e) => e.email === values.email);
+	function checkEmail(value: string) {
+		const employee = employees.find((e) => e.email === value);
 		if (employee) {
-			form.setFieldError("email", "Email already exist.");
+			return "Email already exist.";
 		}
-		const id = employees.find((e) => e.employeeId === values.employeeId);
-		if (id) {
-			form.setFieldError("employeeId", "Employee ID already exist.");
+	}
+
+	function checkID(value: number) {
+		const employee = employees.find((e) => e.employeeId === value);
+		if (employee) {
+			return "Employee ID already exist.";
 		}
-		console.log(form.validate().hasErrors);
-		if (!employee && !id) {
+	}
+
+	async function handleForm(values: EmployeeFormValues) {
+		if (form.isValid()) {
 			values = { ...values, contact: String(values.contact) };
 			await addEmployee(values);
 			if (!error) {
