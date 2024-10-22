@@ -1,3 +1,5 @@
+"use client";
+
 import { useEmployees } from "@/context/EmployeesContext";
 import {
   Badge,
@@ -9,8 +11,11 @@ import {
   rem,
 } from "@mantine/core";
 import { IconPencil, IconTrash } from "@tabler/icons-react";
+import ModalContainer from "./ModalContainer";
+import { useSession } from "next-auth/react";
 
 export function EmployeeTable() {
+  const { data: session } = useSession();
   const { employees } = useEmployees() as {
     employees: {
       fname: string;
@@ -64,6 +69,11 @@ export function EmployeeTable() {
   return (
     <Table.ScrollContainer minWidth={800}>
       <Table verticalSpacing="sm">
+        {session?.user.sAdmin && (
+          <Table.Thead>
+            <ModalContainer title="Add Employee">Add Employee</ModalContainer>
+          </Table.Thead>
+        )}
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Employee</Table.Th>

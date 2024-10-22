@@ -39,9 +39,6 @@ export async function GET() {
 
   try {
     const employees = await prisma.employee.findMany({
-      where: {
-        email: { not: session?.user.email ?? "" },
-      },
       orderBy: { employeeId: "asc" },
     });
     return Response.json(employees, { status: 200 });

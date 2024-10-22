@@ -8,40 +8,41 @@ datasource db {
 }
 
 model Employee {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  fname       String
-  lname       String
-  email       String @unique
-  employeeId  Int    @unique
-  department  String
-  contact     String
-  role        String
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  fname      String
+  lname      String
+  email      String  @unique
+  employeeId Int     @unique
+  department String
+  contact    String
+  role       String
+  sAdmin     Boolean
 }
 
 model Asset {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  assetId     Int @unique
-  name        String
-  assignedTo  Int?
-  condition   String
-  project     String?
-  qrCodeUrl   String
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  assetId    Int     @unique
+  name       String
+  assignedTo Int?
+  condition  String
+  project    String?
+  qrCodeUrl  String
 }
 
 model Task {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  summary       String
-  description   String
-  start         DateTime
-  end           DateTime
-  assigneeEmail String
-  creatorEmail  String
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  summary         String
+  description     String
+  start           DateTime
+  end             DateTime
+  assigneeEmail   String
+  creatorEmail    String
   calendarEventId String
 }
 
 model Document {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  templateId    String
-  newRefId      String
-  documentUrl   String
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  templateId  String
+  newRefId    String
+  documentUrl String
 }

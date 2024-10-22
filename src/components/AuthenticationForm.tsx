@@ -11,7 +11,10 @@ export function AuthenticationForm(props: PaperProps) {
         Welcome to Rivant ERP, Login with
       </Text>
       <Group grow mb="md" mt="md">
-        <GoogleButton radius="xl" onClick={() => signIn("google")}>
+        <GoogleButton
+          radius="xl"
+          onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+        >
           Google
         </GoogleButton>
       </Group>

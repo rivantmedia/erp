@@ -5,17 +5,6 @@ import { IconChevronRight } from "@tabler/icons-react";
 import classes from "./UserButton.module.css";
 import { useSession } from "next-auth/react";
 
-declare module "next-auth" {
-  interface Session {
-    user: {
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      role?: string | null;
-    };
-  }
-}
-
 export function UserButton() {
   const { data: session } = useSession();
 
