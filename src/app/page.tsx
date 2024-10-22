@@ -1,7 +1,7 @@
 "use client";
 
 import { Center } from "@mantine/core";
-import { AuthenticationForm } from "@/components/AuthenticationForm";
+import AuthenticationForm from "@/components/AuthenticationForm";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 

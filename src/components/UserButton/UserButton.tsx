@@ -5,7 +5,7 @@ import { IconChevronRight } from "@tabler/icons-react";
 import classes from "./UserButton.module.css";
 import { useSession } from "next-auth/react";
 
-export function UserButton() {
+export default function UserButton() {
   const { data: session } = useSession();
 
   return (

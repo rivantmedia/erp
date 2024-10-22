@@ -1,5 +1,3 @@
-"use client";
-
-export default function Main() {
-  return <div>Heelo</div>;
+export default function Home() {
+  return null;
 }

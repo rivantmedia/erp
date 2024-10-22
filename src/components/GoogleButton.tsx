@@ -29,7 +29,7 @@ function GoogleIcon(props: React.ComponentPropsWithoutRef<"svg">) {
   );
 }
 
-export function GoogleButton(
+export default function GoogleButton(
   props: ButtonProps & React.ComponentPropsWithoutRef<"button">
 ) {
   return <Button leftSection={<GoogleIcon />} variant="default" {...props} />;

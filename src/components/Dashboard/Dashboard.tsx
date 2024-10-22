@@ -2,11 +2,11 @@
 
 import { AppShell, Burger, Group } from "@mantine/core";
 import React, { useState } from "react";
-import { Logo } from "@/components/Logo";
+import Logo from "@/components/Logo";
 import styles from "./Dashboard.module.css";
 import Link from "next/link";
+import UserButton from "../UserButton/UserButton";
 import { IconLogout } from "@tabler/icons-react";
-import { UserButton } from "../UserButton/UserButton";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 

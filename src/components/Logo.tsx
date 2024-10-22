@@ -1,4 +1,4 @@
-export function Logo(props: React.ComponentPropsWithoutRef<"svg">) {
+export default function Logo(props: React.ComponentPropsWithoutRef<"svg">) {
   return (
     <svg
       {...props}
