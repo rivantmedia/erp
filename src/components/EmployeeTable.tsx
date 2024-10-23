@@ -15,7 +15,7 @@ import { useSession } from "next-auth/react";
 
 export default function EmployeeTable() {
 	const { data: session } = useSession();
-	const { employees } = useEmployees() as {
+	const { employees, removeEmployee } = useEmployees() as {
 		employees: {
 			fname: string;
 			lname: string;
@@ -25,6 +25,7 @@ export default function EmployeeTable() {
 			employeeId: number;
 			sAdmin: boolean;
 		}[];
+		removeEmployee: (employeeId: number) => void;
 	};
 	const rows = employees.map((employee) => (
 		<Table.Tr key={employee.employeeId}>
@@ -71,6 +72,7 @@ export default function EmployeeTable() {
 						<ActionIcon
 							variant="subtle"
 							color="red"
+							onClick={() => removeEmployee(employee.employeeId)}
 						>
 							<IconTrash
 								style={{ width: rem(16), height: rem(16) }}

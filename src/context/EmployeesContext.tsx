@@ -4,17 +4,28 @@ import { createContext, useContext, useEffect, useReducer } from "react";
 
 const EmployeesContext = createContext({});
 
+type Employee = {
+	fname: string;
+	lname: string;
+	role: string;
+	email: string;
+	contact: number;
+	employeeId: number;
+	sAdmin: boolean;
+};
+
 const initialState = {
-	employees: [] as object[],
+	employees: [] as Employee[],
 	isLoading: false,
 	error: ""
 };
 
 type Action =
 	| { type: "loading" }
-	| { type: "employees/loaded"; payload: object[] }
+	| { type: "employees/loaded"; payload: Employee[] }
 	| { type: "rejected"; payload: string }
-	| { type: "employee/added"; payload: object };
+	| { type: "employee/added"; payload: Employee }
+	| { type: "employee/removed"; payload: number };
 
 function reducer(state: typeof initialState, action: Action) {
 	switch (action.type) {
@@ -28,6 +39,15 @@ function reducer(state: typeof initialState, action: Action) {
 			return {
 				...state,
 				employees: [...state.employees, action.payload],
+				isLoading: false
+			};
+
+		case "employee/removed":
+			return {
+				...state,
+				employees: state.employees.filter(
+					(e) => e.employeeId !== action.payload
+				),
 				isLoading: false
 			};
 
@@ -85,9 +105,30 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 		}
 	}
 
+	async function removeEmployee(employeeId: number) {
+		dispatch({ type: "loading" });
+		try {
+			const res = await fetch("/api/employee", {
+				method: "DELETE",
+				body: JSON.stringify({ employeeId }),
+				headers: {
+					"content-type": "application/json",
+					"Accept": "application/json"
+				}
+			});
+			const data = await res.json();
+			dispatch({ type: "employee/removed", payload: employeeId });
+		} catch {
+			dispatch({
+				type: "rejected",
+				payload: "There was an error deleting the employee"
+			});
+		}
+	}
+
 	return (
 		<EmployeesContext.Provider
-			value={{ employees, isLoading, error, addEmployee }}
+			value={{ employees, isLoading, error, addEmployee, removeEmployee }}
 		>
 			{children}
 		</EmployeesContext.Provider>

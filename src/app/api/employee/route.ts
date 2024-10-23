@@ -5,6 +5,12 @@ import { getServerSession } from "next-auth";
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
+	const session = await getServerSession();
+
+	if (!session) {
+		return Response.json({ message: "Unauthorized" }, { status: 401 });
+	}
+
 	const data = await req.json();
 	data.employeeId = parseInt(data.employeeId);
 	try {
@@ -46,6 +52,30 @@ export async function GET() {
 		console.log("Failed to get employees", error);
 		return Response.json(
 			{ message: "Failed to get employees" },
+			{ status: 500 }
+		);
+	}
+}
+
+export async function DELETE(req: NextRequest) {
+	const session = await getServerSession();
+
+	if (!session) {
+		return Response.json({ message: "Unauthorized" }, { status: 401 });
+	}
+
+	const data = await req.json();
+	const employeeId = parseInt(data.employeeId);
+
+	try {
+		const employee = await prisma.employee.delete({
+			where: { employeeId: employeeId }
+		});
+		return Response.json(employee, { status: 200 });
+	} catch (error) {
+		console.log("Failed to delete employee", error);
+		return Response.json(
+			{ message: "Failed to delete employee" },
 			{ status: 500 }
 		);
 	}
