@@ -25,7 +25,8 @@ type Action =
 	| { type: "employees/loaded"; payload: Employee[] }
 	| { type: "rejected"; payload: string }
 	| { type: "employee/added"; payload: Employee }
-	| { type: "employee/removed"; payload: number };
+	| { type: "employee/removed"; payload: number }
+	| { type: "employee/update"; payload: Employee };
 
 function reducer(state: typeof initialState, action: Action) {
 	switch (action.type) {
@@ -39,6 +40,17 @@ function reducer(state: typeof initialState, action: Action) {
 			return {
 				...state,
 				employees: [...state.employees, action.payload],
+				isLoading: false
+			};
+
+		case "employee/update":
+			return {
+				...state,
+				employees: state.employees.map((e) =>
+					e.employeeId === action.payload.employeeId
+						? action.payload
+						: e
+				),
 				isLoading: false
 			};
 
@@ -105,6 +117,27 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 		}
 	}
 
+	async function updateEmployee(employeeData: object) {
+		dispatch({ type: "loading" });
+		try {
+			const res = await fetch("/api/employee", {
+				method: "PUT",
+				body: JSON.stringify(employeeData),
+				headers: {
+					"content-type": "application/json",
+					"Accept": "application/json"
+				}
+			});
+			const data = await res.json();
+			dispatch({ type: "employee/update", payload: data });
+		} catch {
+			dispatch({
+				type: "rejected",
+				payload: "There was an error adding the employee"
+			});
+		}
+	}
+
 	async function removeEmployee(employeeId: number) {
 		dispatch({ type: "loading" });
 		try {
@@ -129,7 +162,14 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 
 	return (
 		<EmployeesContext.Provider
-			value={{ employees, isLoading, error, addEmployee, removeEmployee }}
+			value={{
+				employees,
+				isLoading,
+				error,
+				addEmployee,
+				removeEmployee,
+				updateEmployee
+			}}
 		>
 			{children}
 		</EmployeesContext.Provider>

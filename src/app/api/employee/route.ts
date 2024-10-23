@@ -36,6 +36,38 @@ export async function POST(req: NextRequest) {
 	}
 }
 
+export async function PUT(req: NextRequest) {
+	const session = await getServerSession();
+
+	if (!session) {
+		return Response.json({ message: "Unauthorized" }, { status: 401 });
+	}
+
+	const data = await req.json();
+	data.employeeId = parseInt(data.employeeId);
+
+	try {
+		const employee = await prisma.employee.update({
+			where: { employeeId: data.employeeId },
+			data: {
+				fname: data.fname,
+				lname: data.lname,
+				email: data.email,
+				department: data.department,
+				role: data.role,
+				contact: data.contact
+			}
+		});
+		return Response.json(employee, { status: 200 });
+	} catch (error) {
+		console.log("Failed to update employee", error);
+		return Response.json(
+			{ message: "Failed to update employee" },
+			{ status: 500 }
+		);
+	}
+}
+
 export async function GET() {
 	const session = await getServerSession();
 
