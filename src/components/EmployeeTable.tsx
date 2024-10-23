@@ -10,8 +10,9 @@ import {
 	Anchor,
 	rem
 } from "@mantine/core";
-import { IconPencil, IconTrash } from "@tabler/icons-react";
+import { IconTrash } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
+import ModalContainer from "./ModalContainer";
 
 export default function EmployeeTable() {
 	const { data: session } = useSession();
@@ -60,15 +61,12 @@ export default function EmployeeTable() {
 						gap={0}
 						justify="flex-end"
 					>
-						<ActionIcon
-							variant="subtle"
-							color="gray"
+						<ModalContainer
+							title="Edit Employee"
+							type="edit"
 						>
-							<IconPencil
-								style={{ width: rem(16), height: rem(16) }}
-								stroke={1.5}
-							/>
-						</ActionIcon>
+							HAAA
+						</ModalContainer>
 						<ActionIcon
 							variant="subtle"
 							color="red"
