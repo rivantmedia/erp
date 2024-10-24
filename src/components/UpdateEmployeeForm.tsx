@@ -1,5 +1,6 @@
 import { useEmployees } from "@/context/EmployeesContext";
-import { Notification } from "@mantine/core";
+import { Role, useRoles } from "@/context/RolesContext";
+import { Notification, Select } from "@mantine/core";
 import {
 	Box,
 	Button,
@@ -26,7 +27,7 @@ interface EmployeeFormValues {
 	title: string;
 	contact: number;
 	sAdmin?: boolean;
-	roleId?: string;
+	roleId: string;
 }
 
 function UpdateEmployeeForm({ employeeId }: { employeeId: number }) {
@@ -37,6 +38,7 @@ function UpdateEmployeeForm({ employeeId }: { employeeId: number }) {
 		error: string;
 		updateEmployee: (employee: EmployeeFormValues) => void;
 	};
+	const { roles } = useRoles() as { roles: Role[] };
 
 	const form = useForm({
 		mode: "uncontrolled",
@@ -47,7 +49,8 @@ function UpdateEmployeeForm({ employeeId }: { employeeId: number }) {
 			employeeId: 0,
 			department: "",
 			title: "",
-			contact: 0
+			contact: 0,
+			roleId: ""
 		},
 		validate: {
 			fname: hasLength(
@@ -68,7 +71,8 @@ function UpdateEmployeeForm({ employeeId }: { employeeId: number }) {
 			contact: isInRange(
 				{ min: 1000000000 },
 				"Contact number should have 10 digits"
-			)
+			),
+			roleId: isNotEmpty("Role is required")
 		}
 	});
 
@@ -85,11 +89,7 @@ function UpdateEmployeeForm({ employeeId }: { employeeId: number }) {
 
 	async function handleForm(values: EmployeeFormValues) {
 		if (form.isValid()) {
-			values = {
-				...values,
-				contact: values.contact,
-				sAdmin: false
-			};
+			console.log(values);
 			await updateEmployee(values);
 			if (!error) {
 				setNotification(true);
@@ -168,6 +168,17 @@ function UpdateEmployeeForm({ employeeId }: { employeeId: number }) {
 						mt="md"
 						key={form.key("contact")}
 						{...form.getInputProps("contact")}
+					/>
+					<Select
+						withAsterisk
+						label="Role Access"
+						mt="md"
+						data={roles.map((role) => ({
+							label: role.name,
+							value: role.id
+						}))}
+						key={form.key("roleId")}
+						{...form.getInputProps("roleId")}
 					/>
 					<Group
 						justify="center"

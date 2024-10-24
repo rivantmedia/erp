@@ -13,7 +13,7 @@ type Employee = {
 	contact: number;
 	employeeId: number;
 	sAdmin: boolean;
-	roleId?: string;
+	roleId: string;
 };
 
 const initialState = {
@@ -97,7 +97,7 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 		fetchEmployees();
 	}, []);
 
-	async function addEmployee(newEmployee: object) {
+	async function addEmployee(newEmployee: Employee) {
 		newEmployee = { ...newEmployee, sAdmin: false };
 		dispatch({ type: "loading" });
 		try {
@@ -119,7 +119,7 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 		}
 	}
 
-	async function updateEmployee(employeeData: object) {
+	async function updateEmployee(employeeData: Employee) {
 		dispatch({ type: "loading" });
 		try {
 			const res = await fetch("/api/employee", {

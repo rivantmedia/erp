@@ -1,5 +1,6 @@
 import { useEmployees } from "@/context/EmployeesContext";
-import { Notification } from "@mantine/core";
+import { Role, useRoles } from "@/context/RolesContext";
+import { Notification, Select } from "@mantine/core";
 import {
 	Box,
 	Button,
@@ -26,7 +27,7 @@ interface EmployeeFormValues {
 	title: string;
 	contact: number;
 	sAdmin?: boolean;
-	roleId?: string;
+	roleId: string;
 }
 
 function CreateEmployeeForm() {
@@ -37,6 +38,7 @@ function CreateEmployeeForm() {
 		error: string;
 		addEmployee: (employee: EmployeeFormValues) => void;
 	};
+	const { roles } = useRoles() as { roles: Role[] };
 	const form = useForm({
 		mode: "uncontrolled",
 		initialValues: {
@@ -46,7 +48,8 @@ function CreateEmployeeForm() {
 			employeeId: 0,
 			department: "",
 			title: "",
-			contact: 0
+			contact: 0,
+			roleId: ""
 		},
 		validate: {
 			fname: hasLength(
@@ -66,7 +69,8 @@ function CreateEmployeeForm() {
 			contact: isInRange(
 				{ min: 1000000000 },
 				"Contact number should have 10 digits"
-			)
+			),
+			roleId: isNotEmpty("Role is required")
 		}
 	});
 
@@ -164,6 +168,17 @@ function CreateEmployeeForm() {
 						mt="md"
 						key={form.key("contact")}
 						{...form.getInputProps("contact")}
+					/>
+					<Select
+						withAsterisk
+						label="Role Access"
+						mt="md"
+						data={roles.map((role) => ({
+							label: role.name,
+							value: role.id
+						}))}
+						key={form.key("roleId")}
+						{...form.getInputProps("roleId")}
 					/>
 					<Group
 						justify="center"

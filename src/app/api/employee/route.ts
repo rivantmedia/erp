@@ -55,7 +55,8 @@ export async function PUT(req: NextRequest) {
 				email: data.email,
 				department: data.department,
 				role: data.role,
-				contact: data.contact
+				contact: data.contact,
+				roleId: data.roleId
 			}
 		});
 		return Response.json(employee, { status: 200 });
