@@ -1,5 +1,7 @@
 "use client";
 
+//TODO: Add error handling for fetch requests with status !== 2xx
+
 import { createContext, useContext, useEffect, useReducer } from "react";
 
 const RolesContext = createContext({});
