@@ -81,3 +81,19 @@ export enum Roles {
  *
  * ROLES_DELETE - Delete roles only below their role heirarchy
  */
+
+const enumMap = new Map<string, number>([]);
+
+for (const key of Object.keys(Roles).filter((v) => isNaN(Number(v)))) {
+	enumMap.set(key, Roles[key as keyof typeof Roles]);
+}
+
+export function getPermissionStrings(permissions: number): string[] {
+	const permissionStrings: string[] = [];
+	enumMap.keys().forEach((permission) => {
+		if (permissions & enumMap.get(permission)!) {
+			permissionStrings.push(permission);
+		}
+	});
+	return permissionStrings;
+}

@@ -13,6 +13,7 @@ import {
 import { IconTrash } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ModalContainer from "./ModalContainer";
+import { getPermissionStrings } from "@/lib/permissions";
 
 export default function RolesTable() {
 	const { data: session } = useSession();
@@ -32,7 +33,18 @@ export default function RolesTable() {
 			</Table.Td>
 
 			<Table.Td>
-				<Badge variant="light">{role.permissions}</Badge>
+				{role.permissions ? (
+					getPermissionStrings(role.permissions).map((s) => (
+						<Badge
+							variant="light"
+							key={s}
+						>
+							{s}
+						</Badge>
+					))
+				) : (
+					<Badge variant="light">"No Permissions"</Badge>
+				)}
 			</Table.Td>
 			<Table.Td>
 				{session?.user.sAdmin && (

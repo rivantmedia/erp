@@ -1,5 +1,6 @@
 import { useRoles } from "@/context/RolesContext";
-import { Notification } from "@mantine/core";
+import { Roles } from "@/lib/permissions";
+import { Checkbox, Notification } from "@mantine/core";
 import {
 	Box,
 	Button,
@@ -77,8 +78,12 @@ function CreateRoleForm() {
 						withAsterisk
 						label="Permissions"
 						mt="md"
+						disabled
 						key={form.key("permissions")}
 						{...form.getInputProps("permissions")}
+						onChange={(e) =>
+							form.setFieldValue("permissionsbin", e.toString(2))
+						}
 					/>
 					<Group
 						justify="center"
@@ -86,6 +91,25 @@ function CreateRoleForm() {
 					>
 						<Button type="submit">Submit</Button>
 					</Group>
+					{Object.keys(Roles)
+						.filter((v) => isNaN(Number(v)))
+						.map((key) => (
+							<Checkbox
+								key={key}
+								label={key}
+								onChange={(e) => {
+									const computedValue = e.target.checked
+										? form.getValues().permissions |
+										  Roles[key as keyof typeof Roles]
+										: form.getValues().permissions &
+										  ~Roles[key as keyof typeof Roles];
+									form.setFieldValue(
+										"permissions",
+										computedValue
+									);
+								}}
+							/>
+						))}
 				</form>
 			</Box>
 		</>
