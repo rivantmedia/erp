@@ -15,8 +15,10 @@ model Employee {
   employeeId Int     @unique
   department String
   contact    String
-  role       String
+  title      String
+  role       Role?   @relation(fields: [roleId], references: [id])
   sAdmin     Boolean
+  roleId     String? @db.ObjectId
 }
 
 model Asset {
@@ -45,4 +47,12 @@ model Document {
   templateId  String
   newRefId    String
   documentUrl String
+}
+
+model Role {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  index       Int        @unique
+  name        String
+  permissions Int
+  Employee    Employee[]
 }
