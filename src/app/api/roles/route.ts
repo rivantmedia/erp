@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 import { PrismaClient, Prisma } from "@prisma/client";
-import { getServerSession } from "next-auth";
 import * as yup from "yup";
 import { Roles } from "@/lib/permissions";
 import { accessCheckError } from "@/lib/routeProtection";

@@ -1,19 +1,53 @@
 import { NextRequest } from "next/server";
 import { PrismaClient, Prisma } from "@prisma/client";
-import { getServerSession } from "next-auth";
+import * as yup from "yup";
+import { accessCheckError } from "@/lib/routeProtection";
+import { Roles } from "@/lib/permissions";
 
 const prisma = new PrismaClient();
 
-export async function POST(req: NextRequest) {
-	const session = await getServerSession();
+const POSTSchema = yup.object({
+	fname: yup.string().required(),
+	lname: yup.string().required(),
+	email: yup.string().email().required(),
+	department: yup.string().required(),
+	title: yup.string().required(),
+	employeeId: yup.number().required(),
+	contact: yup.number().required(),
+	sAdmin: yup.boolean().required(),
+	roleId: yup.string().required()
+});
 
-	if (!session) {
-		return Response.json({ message: "Unauthorized" }, { status: 401 });
+const PUTSchema = yup.object({
+	fname: yup.string().required(),
+	lname: yup.string().required(),
+	email: yup.string().required(),
+	department: yup.string().required(),
+	title: yup.string().required(),
+	employeeId: yup.number().required(),
+	contact: yup.number().required(),
+	roleId: yup.string().required()
+});
+
+const DELETESchema = yup.object({
+	employeeId: yup.number().required()
+});
+
+export async function POST(req: NextRequest) {
+	const accessError = await accessCheckError(
+		Roles.EMPLOYEES_READ_SENSITIVE_INFO & Roles.EMPLOYEES_CREATE
+	);
+
+	if (accessError) {
+		return Response.json(
+			{ message: accessError.message },
+			{ status: accessError.status }
+		);
 	}
 
-	const data = await req.json();
-	data.employeeId = parseInt(data.employeeId);
 	try {
+		const data = await POSTSchema.validate(await req.json());
+
 		const employee = await prisma.employee.create({
 			data: data
 		});
@@ -37,16 +71,20 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-	const session = await getServerSession();
+	const accessError = await accessCheckError(
+		Roles.EMPLOYEES_READ_SENSITIVE_INFO & Roles.EMPLOYEES_UPDATE
+	);
 
-	if (!session) {
-		return Response.json({ message: "Unauthorized" }, { status: 401 });
+	if (accessError) {
+		return Response.json(
+			{ message: accessError.message },
+			{ status: accessError.status }
+		);
 	}
 
-	const data = await req.json();
-	data.employeeId = parseInt(data.employeeId);
-
 	try {
+		const data = await PUTSchema.validate(await req.json());
+
 		const employee = await prisma.employee.update({
 			where: { employeeId: data.employeeId },
 			data: {
@@ -54,7 +92,7 @@ export async function PUT(req: NextRequest) {
 				lname: data.lname,
 				email: data.email,
 				department: data.department,
-				role: data.role,
+				title: data.title,
 				contact: data.contact,
 				roleId: data.roleId
 			}
@@ -70,10 +108,13 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function GET() {
-	const session = await getServerSession();
+	const accessError = await accessCheckError(Roles.EMPLOYEES_READ);
 
-	if (!session) {
-		return Response.json({ message: "Unauthorized" }, { status: 401 });
+	if (accessError) {
+		return Response.json(
+			{ message: accessError.message },
+			{ status: accessError.status }
+		);
 	}
 
 	try {
@@ -91,18 +132,21 @@ export async function GET() {
 }
 
 export async function DELETE(req: NextRequest) {
-	const session = await getServerSession();
+	const accessError = await accessCheckError(
+		Roles.EMPLOYEES_READ_SENSITIVE_INFO & Roles.EMPLOYEES_DELETE
+	);
 
-	if (!session) {
-		return Response.json({ message: "Unauthorized" }, { status: 401 });
+	if (accessError) {
+		return Response.json(
+			{ message: accessError.message },
+			{ status: accessError.status }
+		);
 	}
 
-	const data = await req.json();
-	const employeeId = parseInt(data.employeeId);
-
 	try {
+		const data = await DELETESchema.validate(await req.json());
 		const employee = await prisma.employee.delete({
-			where: { employeeId: employeeId }
+			where: { employeeId: data.employeeId }
 		});
 		return Response.json(employee, { status: 200 });
 	} catch (error) {

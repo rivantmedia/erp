@@ -7,8 +7,9 @@ import {
 	Group,
 	Text,
 	ActionIcon,
-	Anchor,
-	rem
+	rem,
+	Loader,
+	Center
 } from "@mantine/core";
 import { IconTrash } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
@@ -17,7 +18,7 @@ import { getPermissionStrings } from "@/lib/permissions";
 
 export default function RolesTable() {
 	const { data: session } = useSession();
-	const { roles, removeRole } = useRoles();
+	const { roles, removeRole, isLoading } = useRoles();
 
 	const rows = roles.map((role) => (
 		<Table.Tr key={role.id}>
@@ -43,7 +44,7 @@ export default function RolesTable() {
 						</Badge>
 					))
 				) : (
-					<Badge variant="light">"No Permissions"</Badge>
+					<Badge variant="light">No Permissions</Badge>
 				)}
 			</Table.Td>
 			<Table.Td>
@@ -75,17 +76,25 @@ export default function RolesTable() {
 	));
 
 	return (
-		<Table.ScrollContainer minWidth={800}>
-			<Table verticalSpacing="sm">
-				<Table.Thead>
-					<Table.Tr>
-						<Table.Th>Name</Table.Th>
-						<Table.Th>Permissions</Table.Th>
-						<Table.Th />
-					</Table.Tr>
-				</Table.Thead>
-				<Table.Tbody>{rows}</Table.Tbody>
-			</Table>
-		</Table.ScrollContainer>
+		<>
+			{isLoading ? (
+				<Center h="100%">
+					<Loader />
+				</Center>
+			) : (
+				<Table.ScrollContainer minWidth={800}>
+					<Table verticalSpacing="sm">
+						<Table.Thead>
+							<Table.Tr>
+								<Table.Th>Name</Table.Th>
+								<Table.Th>Permissions</Table.Th>
+								<Table.Th />
+							</Table.Tr>
+						</Table.Thead>
+						<Table.Tbody>{rows}</Table.Tbody>
+					</Table>
+				</Table.ScrollContainer>
+			)}
+		</>
 	);
 }
