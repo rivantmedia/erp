@@ -15,7 +15,7 @@ import {
 	isNotEmpty,
 	useForm
 } from "@mantine/form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface EmployeeFormValues {
 	fname: string;
@@ -29,14 +29,15 @@ interface EmployeeFormValues {
 	roleId?: string;
 }
 
-function CreateEmployeeForm() {
+function UpdateEmployeeForm({ employeeId }: { employeeId: number }) {
 	const [notification, setNotification] = useState(false);
-	const { employees, isLoading, error, addEmployee } = useEmployees() as {
+	const { employees, isLoading, error, updateEmployee } = useEmployees() as {
 		employees: EmployeeFormValues[];
 		isLoading: boolean;
 		error: string;
-		addEmployee: (employee: EmployeeFormValues) => void;
+		updateEmployee: (employee: EmployeeFormValues) => void;
 	};
+
 	const form = useForm({
 		mode: "uncontrolled",
 		initialValues: {
@@ -57,10 +58,11 @@ function CreateEmployeeForm() {
 				{ min: 2 },
 				"Last name must be more than 2 characters long"
 			),
-			email: isEmail("Invalid email") && checkEmail,
-			employeeId:
-				isInRange({ min: 1 }, "Employee ID must be more than 0") &&
-				checkID,
+			email: isEmail("Invalid email"),
+			employeeId: isInRange(
+				{ min: 1 },
+				"Employee ID must be more than 0"
+			),
 			department: isNotEmpty("Department is required"),
 			title: isNotEmpty("Role is required"),
 			contact: isInRange(
@@ -70,26 +72,27 @@ function CreateEmployeeForm() {
 		}
 	});
 
-	function checkEmail(value: string) {
-		const employee = employees.find((e) => e.email === value);
-		if (employee) {
-			return "Email already exist.";
+	useEffect(() => {
+		if (employeeId) {
+			const employee = employees.find((e) => e.employeeId === employeeId);
+			if (employee) {
+				form.setInitialValues(employee);
+				form.setValues(employee);
+			}
 		}
-	}
-
-	function checkID(value: number) {
-		const employee = employees.find((e) => e.employeeId === value);
-		if (employee) {
-			return "Employee ID already exist.";
-		}
-	}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [employeeId, employees]);
 
 	async function handleForm(values: EmployeeFormValues) {
 		if (form.isValid()) {
-			await addEmployee(values);
+			values = {
+				...values,
+				contact: values.contact,
+				sAdmin: false
+			};
+			await updateEmployee(values);
 			if (!error) {
 				setNotification(true);
-				form.reset();
 			}
 		}
 	}
@@ -98,11 +101,11 @@ function CreateEmployeeForm() {
 		<>
 			{notification && (
 				<Notification
-					title="Employee Added"
+					title="Employee Updated"
 					color="green"
 					onClose={() => setNotification(false)}
 				>
-					Employee has been added successfully
+					Employee data updated successfully
 				</Notification>
 			)}
 			<Box pos="relative">
@@ -139,6 +142,7 @@ function CreateEmployeeForm() {
 					/>
 					<NumberInput
 						withAsterisk
+						disabled
 						label="Employee ID Number"
 						mt="md"
 						key={form.key("employeeId")}
@@ -169,7 +173,7 @@ function CreateEmployeeForm() {
 						justify="center"
 						mt="md"
 					>
-						<Button type="submit">Submit</Button>
+						<Button type="submit">Update</Button>
 					</Group>
 				</form>
 			</Box>
@@ -177,4 +181,4 @@ function CreateEmployeeForm() {
 	);
 }
 
-export default CreateEmployeeForm;
+export default UpdateEmployeeForm;

@@ -1,148 +1,164 @@
 {
-  "users": [
-    {
-      "fname": "Aadhya",
-      "lname": "Rastogi",
-      "email": "aadhya@rivant.in",
-      "employeeId": "3",
-      "department": "Human Resources",
-      "contact": "8791748879",
-      "role": "Human Resources"
-    },
-    {
-      "fname": "Advaith",
-      "lname": "Raja",
-      "email": "advaith@rivant.in",
-      "employeeId": "22",
-      "department": "Marketing",
-      "contact": "9175143486",
-      "role": "Social Media Manager"
-    },
-    {
-      "fname": "Altamash",
-      "lname": "Shaikh",
-      "email": "altamash@rivant.in",
-      "employeeId": "11",
-      "department": "Design",
-      "contact": "9172307867",
-      "role": "Graphic Designer"
-    },
-    {
-      "fname": "Arnuv",
-      "lname": "Amburle",
-      "email": "arnuv@rivant.in",
-      "employeeId": "2",
-      "department": "Executive",
-      "contact": "9136149370",
-      "role": "Co-Founder & CO-CEO"
-    },
-    {
-      "fname": "Deepanshu",
-      "lname": "Nagle",
-      "email": "deepanshu@rivant.in",
-      "employeeId": "12",
-      "department": "Design",
-      "contact": "9493823216",
-      "role": "Graphic Designer"
-    },
-    {
-      "fname": "Farhan",
-      "lname": "Khan",
-      "email": "farhan@rivant.in",
-      "employeeId": "15",
-      "department": "Content",
-      "contact": "9534045196",
-      "role": "Creative Director & Video Editor"
-    },
-    {
-      "fname": "Harkirat",
-      "lname": "Singh",
-      "email": "harkirat@rivant.in",
-      "employeeId": "20",
-      "department": "Design",
-      "contact": "7827847771",
-      "role": "Graphic Designer"
-    },
-    {
-      "fname": "Jaimeet",
-      "lname": "Singh",
-      "email": "jaimeet@rivant.in",
-      "employeeId": "18",
-      "department": "Content",
-      "contact": "7223972261",
-      "role": "Director of Photography"
-    },
-    {
-      "fname": "Paawan",
-      "lname": "Parwani",
-      "email": "paawan@rivant.in",
-      "employeeId": "17",
-      "department": "Management",
-      "contact": "8000390626",
-      "role": "Project Manager"
-    },
-    {
-      "fname": "Paras",
-      "lname": "Deshpande",
-      "email": "paras@rivant.in",
-      "employeeId": "1",
-      "department": "Executive",
-      "contact": "8080497810",
-      "role": "Founder & CEO"
-    },
-    {
-      "fname": "Rajat",
-      "lname": "Gupta",
-      "email": "rajat@rivant.in",
-      "employeeId": "7",
-      "department": "Web Development",
-      "contact": "9188297043",
-      "role": "Web Developer"
-    },
-    {
-      "fname": "Shivali",
-      "lname": "Choudhary",
-      "email": "shivali@rivant.in",
-      "employeeId": "23",
-      "department": "Human Resources",
-      "contact": "9869609773",
-      "role": "Human Resources"
-    },
-    {
-      "fname": "Shubhika",
-      "lname": "Singh",
-      "email": "shubhika@rivant.in",
-      "employeeId": "16",
-      "department": "Design",
-      "contact": "8087155512",
-      "role": "Graphic Designer"
-    },
-    {
-      "fname": "Sonal",
-      "lname": "Mohrir",
-      "email": "sonal@rivant.in",
-      "employeeId": "21",
-      "department": "Content",
-      "contact": "7386663834",
-      "role": "Copywriter"
-    },
-    {
-      "fname": "Suhina",
-      "lname": "Majumder",
-      "email": "suhina@rivant.in",
-      "employeeId": "19",
-      "department": "Marketing",
-      "contact": "8252683729",
-      "role": "Social Media Manager"
-    },
-    {
-      "fname": "Tanisha",
-      "lname": "Nath",
-      "email": "tanisha@rivant.in",
-      "employeeId": "10",
-      "department": "Design",
-      "contact": "8169085198",
-      "role": "Graphic Designer"
-    }
-  ]
+	"users": [
+		{
+			"fname": "Aadhya",
+			"lname": "Rastogi",
+			"email": "aadhya@rivant.in",
+			"employeeId": 3,
+			"department": "Human Resources",
+			"contact": 8791748879,
+			"title": "Human Resources",
+			"sAdmin": false
+		},
+		{
+			"fname": "Advaith",
+			"lname": "Raja",
+			"email": "advaith@rivant.in",
+			"employeeId": 22,
+			"department": "Marketing",
+			"contact": 9175143486,
+			"title": "Social Media Manager",
+			"sAdmin": false
+		},
+		{
+			"fname": "Altamash",
+			"lname": "Shaikh",
+			"email": "altamash@rivant.in",
+			"employeeId": 11,
+			"department": "Design",
+			"contact": 9172307867,
+			"title": "Graphic Designer",
+			"sAdmin": false
+		},
+		{
+			"fname": "Arnuv",
+			"lname": "Amburle",
+			"email": "arnuv@rivant.in",
+			"employeeId": 2,
+			"department": "Executive",
+			"contact": 9136149370,
+			"title": "Co-Founder & CO-CEO",
+			"sAdmin": false
+		},
+		{
+			"fname": "Deepanshu",
+			"lname": "Nagle",
+			"email": "deepanshu@rivant.in",
+			"employeeId": 12,
+			"department": "Design",
+			"contact": 9493823216,
+			"title": "Graphic Designer",
+			"sAdmin": false
+		},
+		{
+			"fname": "Farhan",
+			"lname": "Khan",
+			"email": "farhan@rivant.in",
+			"employeeId": 15,
+			"department": "Content",
+			"contact": 9534045196,
+			"title": "Creative Director & Video Editor",
+			"sAdmin": false
+		},
+		{
+			"fname": "Harkirat",
+			"lname": "Singh",
+			"email": "harkirat@rivant.in",
+			"employeeId": 20,
+			"department": "Design",
+			"contact": 7827847771,
+			"title": "Graphic Designer",
+			"sAdmin": false
+		},
+		{
+			"fname": "Jaimeet",
+			"lname": "Singh",
+			"email": "jaimeet@rivant.in",
+			"employeeId": 18,
+			"department": "Content",
+			"contact": 7223972261,
+			"title": "Director of Photography",
+			"sAdmin": false
+		},
+		{
+			"fname": "Paawan",
+			"lname": "Parwani",
+			"email": "paawan@rivant.in",
+			"employeeId": 17,
+			"department": "Management",
+			"contact": 8000390626,
+			"title": "Project Manager",
+			"sAdmin": false
+		},
+		{
+			"fname": "Paras",
+			"lname": "Deshpande",
+			"email": "paras@rivant.in",
+			"employeeId": 1,
+			"department": "Executive",
+			"contact": 8080497810,
+			"title": "Founder & CEO",
+			"sAdmin": true
+		},
+		{
+			"fname": "Rajat",
+			"lname": "Gupta",
+			"email": "rajat@rivant.in",
+			"employeeId": 7,
+			"department": "Web Development",
+			"contact": 9188297043,
+			"title": "Web Developer",
+			"sAdmin": true
+		},
+		{
+			"fname": "Shivali",
+			"lname": "Choudhary",
+			"email": "shivali@rivant.in",
+			"employeeId": 23,
+			"department": "Human Resources",
+			"contact": 9869609773,
+			"title": "Human Resources",
+			"sAdmin": false
+		},
+		{
+			"fname": "Shubhika",
+			"lname": "Singh",
+			"email": "shubhika@rivant.in",
+			"employeeId": 16,
+			"department": "Design",
+			"contact": 8087155512,
+			"title": "Graphic Designer",
+			"sAdmin": false
+		},
+		{
+			"fname": "Sonal",
+			"lname": "Mohrir",
+			"email": "sonal@rivant.in",
+			"employeeId": 21,
+			"department": "Content",
+			"contact": 7386663834,
+			"title": "Copywriter",
+			"sAdmin": false
+		},
+		{
+			"fname": "Suhina",
+			"lname": "Majumder",
+			"email": "suhina@rivant.in",
+			"employeeId": 19,
+			"department": "Marketing",
+			"contact": 8252683729,
+			"title": "Social Media Manager",
+			"sAdmin": false
+		},
+		{
+			"fname": "Tanisha",
+			"lname": "Nath",
+			"email": "tanisha@rivant.in",
+			"employeeId": 10,
+			"department": "Design",
+			"contact": 8169085198,
+			"title": "Graphic Designer",
+			"sAdmin": false
+		}
+	]
 }

@@ -13,6 +13,7 @@ import {
 import { IconTrash } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ModalContainer from "./ModalContainer";
+import UpdateEmployeeForm from "@/components/UpdateEmployeeForm";
 
 export default function EmployeeTable() {
 	const { data: session } = useSession();
@@ -20,7 +21,7 @@ export default function EmployeeTable() {
 		employees: {
 			fname: string;
 			lname: string;
-			role: string;
+			title: string;
 			email: string;
 			contact: number;
 			employeeId: number;
@@ -42,7 +43,7 @@ export default function EmployeeTable() {
 			</Table.Td>
 
 			<Table.Td>
-				<Badge variant="light">{employee.role}</Badge>
+				<Badge variant="light">{employee.title}</Badge>
 			</Table.Td>
 			<Table.Td>
 				<Anchor
@@ -65,7 +66,9 @@ export default function EmployeeTable() {
 							title="Edit Employee"
 							type="edit"
 						>
-							HAAA
+							<UpdateEmployeeForm
+								employeeId={employee.employeeId}
+							/>
 						</ModalContainer>
 						<ActionIcon
 							variant="subtle"
