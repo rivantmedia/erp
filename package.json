@@ -20,7 +20,8 @@
 		"next-auth": "^4.24.8",
 		"nodemailer": "^6.9.15",
 		"react": "^18",
-		"react-dom": "^18"
+		"react-dom": "^18",
+		"yup": "^1.4.0"
 	},
 	"devDependencies": {
 		"@rivantmedia/prettier-config": "^3.0.0",

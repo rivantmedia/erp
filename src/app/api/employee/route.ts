@@ -73,7 +73,6 @@ export async function DELETE(req: NextRequest) {
 		});
 		return Response.json(employee, { status: 200 });
 	} catch (error) {
-		console.log("Failed to delete employee", error);
 		return Response.json(
 			{ message: "Failed to delete employee" },
 			{ status: 500 }
