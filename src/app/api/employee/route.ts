@@ -18,7 +18,7 @@ const POSTSchema = yup.object({
 	roleId: yup.string().required()
 });
 
-const PUTSchema = yup.object({
+const PATCHSchema = yup.object({
 	fname: yup.string().required(),
 	lname: yup.string().required(),
 	email: yup.string().required(),
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
 	}
 }
 
-export async function PUT(req: NextRequest) {
+export async function PATCH(req: NextRequest) {
 	const accessError = await accessCheckError(
 		Roles.EMPLOYEES_READ_SENSITIVE_INFO & Roles.EMPLOYEES_UPDATE
 	);
@@ -83,7 +83,7 @@ export async function PUT(req: NextRequest) {
 	}
 
 	try {
-		const data = await PUTSchema.validate(await req.json());
+		const data = await PATCHSchema.validate(await req.json());
 
 		const employee = await prisma.employee.update({
 			where: { employeeId: data.employeeId },

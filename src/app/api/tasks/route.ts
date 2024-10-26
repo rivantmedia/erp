@@ -4,6 +4,8 @@ import * as yup from "yup";
 import { accessCheckError } from "@/lib/routeProtection";
 import { Roles } from "@/lib/permissions";
 import { google } from "googleapis";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 const prisma = new PrismaClient();
 
@@ -19,19 +21,23 @@ const POSTSchema = yup.object({
 	end: yup.date().required()
 });
 
-const PUTSchema = yup.object({
-	fname: yup.string().required(),
-	lname: yup.string().required(),
-	email: yup.string().required(),
-	department: yup.string().required(),
-	title: yup.string().required(),
-	employeeId: yup.number().required(),
-	contact: yup.number().required(),
-	roleId: yup.string().required()
+const PATCHSchema = yup.object({
+	id: yup.string().required(),
+	project: yup.string().required(),
+	name: yup.string().required(),
+	description: yup.string().required(),
+	summary: yup.string().required(),
+	assigneeId: yup.string().required(),
+	assignedEmail: yup.string().required(),
+	creatorId: yup.string().required(),
+	start: yup.date().required(),
+	end: yup.date().required(),
+	calendarEventId: yup.string().required()
 });
 
 const DELETESchema = yup.object({
-	employeeId: yup.number().required()
+	id: yup.string().required(),
+	creatorId: yup.string().required()
 });
 
 export async function POST(req: NextRequest) {
@@ -103,34 +109,69 @@ export async function POST(req: NextRequest) {
 	}
 }
 
-export async function PUT(req: NextRequest) {
-	const accessError = await accessCheckError(
-		Roles.EMPLOYEES_READ_SENSITIVE_INFO & Roles.EMPLOYEES_UPDATE
-	);
-
-	if (accessError) {
-		return Response.json(
-			{ message: accessError.message },
-			{ status: accessError.status }
-		);
-	}
+export async function PATCH(req: NextRequest) {
+	const session = await getServerSession(authOptions);
+	const accessError1 = await accessCheckError(Roles.TASKS_EDIT);
 
 	try {
-		const data = await PUTSchema.validate(await req.json());
+		const data = await PATCHSchema.validate(await req.json());
+		const accessError2 = session?.user.id === data.creatorId;
 
-		const employee = await prisma.employee.update({
-			where: { employeeId: data.employeeId },
-			data: {
-				fname: data.fname,
-				lname: data.lname,
-				email: data.email,
-				department: data.department,
-				title: data.title,
-				contact: data.contact,
-				roleId: data.roleId
-			}
-		});
-		return Response.json(employee, { status: 200 });
+		if (accessError1 === null || accessError2) {
+			const oAuth2Client = new google.auth.OAuth2(
+				process.env.GOOGLE_CLIENT_ID,
+				process.env.GOOGLE_CLIENT_SECRET,
+				process.env.NEXTAUTH_URL
+			);
+			oAuth2Client.setCredentials({
+				refresh_token: process.env.GOOGLE_REFRESH_TOKEN
+			});
+
+			const calendar = google.calendar({
+				version: "v3",
+				auth: oAuth2Client
+			});
+
+			const taskEvent = await calendar.events.update({
+				calendarId: "primary",
+				eventId: data.calendarEventId,
+				requestBody: {
+					summary: data.name,
+					description: data.description,
+					start: {
+						dateTime: data.start.toISOString(),
+						timeZone:
+							Intl.DateTimeFormat().resolvedOptions().timeZone
+					},
+					end: {
+						dateTime: data.end.toISOString(),
+						timeZone:
+							Intl.DateTimeFormat().resolvedOptions().timeZone
+					},
+					attendees: [{ email: data.assignedEmail }]
+				}
+			});
+
+			const task = await prisma.task.update({
+				where: { id: data.id },
+				data: {
+					project: data.project,
+					name: data.name,
+					description: data.description,
+					summary: data.summary,
+					assigneeId: data.assigneeId,
+					start: data.start,
+					end: data.end,
+					calendarEventId: taskEvent.data.id ?? data.calendarEventId
+				}
+			});
+			return Response.json(task, { status: 200 });
+		}
+
+		return Response.json(
+			{ message: accessError1?.message },
+			{ status: accessError1?.status }
+		);
 	} catch (error) {
 		console.log("Failed to update employee", error);
 		return Response.json(
@@ -141,47 +182,69 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function GET() {
-	const accessError = await accessCheckError(Roles.EMPLOYEES_READ);
+	const accessError = await accessCheckError(Roles.TASKS_VIEW_ALL);
+	const session = await getServerSession(authOptions);
 
-	if (accessError) {
-		return Response.json(
-			{ message: accessError.message },
-			{ status: accessError.status }
-		);
+	if (accessError === null) {
+		try {
+			const tasks = await prisma.task.findMany({});
+			return Response.json(tasks, { status: 200 });
+		} catch (error) {
+			console.log("Failed to get employees", error);
+			return Response.json(
+				{ message: "Failed to get employees" },
+				{ status: 500 }
+			);
+		}
 	}
 
-	try {
-		const employees = await prisma.employee.findMany({
-			orderBy: { employeeId: "asc" }
-		});
-		return Response.json(employees, { status: 200 });
-	} catch (error) {
-		console.log("Failed to get employees", error);
-		return Response.json(
-			{ message: "Failed to get employees" },
-			{ status: 500 }
-		);
+	const accessError2 = await accessCheckError(Roles.TASKS_VIEW);
+
+	if (accessError2 === null) {
+		try {
+			const tasks = await prisma.task.findMany({
+				where: {
+					OR: [
+						{ assigneeId: session?.user.id as string },
+						{ creatorId: session?.user.id as string }
+					]
+				}
+			});
+			return Response.json(tasks, { status: 200 });
+		} catch (error) {
+			console.log("Failed to get employees", error);
+			return Response.json(
+				{ message: "Failed to get employees" },
+				{ status: 500 }
+			);
+		}
 	}
+
+	return Response.json(
+		{ message: accessError2.message },
+		{ status: accessError2.status }
+	);
 }
 
 export async function DELETE(req: NextRequest) {
-	const accessError = await accessCheckError(
-		Roles.EMPLOYEES_READ_SENSITIVE_INFO & Roles.EMPLOYEES_DELETE
-	);
-
-	if (accessError) {
-		return Response.json(
-			{ message: accessError.message },
-			{ status: accessError.status }
-		);
-	}
+	const session = await getServerSession(authOptions);
+	const accessError1 = await accessCheckError(Roles.TASKS_DELETE);
 
 	try {
 		const data = await DELETESchema.validate(await req.json());
-		const employee = await prisma.employee.delete({
-			where: { employeeId: data.employeeId }
-		});
-		return Response.json(employee, { status: 200 });
+		const accessError2 = session?.user.id === data.creatorId;
+
+		if (accessError1 === null || accessError2) {
+			const task = await prisma.task.delete({
+				where: { id: data.id }
+			});
+			return Response.json(task, { status: 200 });
+		}
+
+		return Response.json(
+			{ message: accessError1.message },
+			{ status: accessError1.status }
+		);
 	} catch (error) {
 		console.log("Failed to delete employee", error);
 		return Response.json(

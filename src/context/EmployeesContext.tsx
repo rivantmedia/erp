@@ -123,7 +123,7 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 		dispatch({ type: "loading" });
 		try {
 			const res = await fetch("/api/employee", {
-				method: "PUT",
+				method: "PATCH",
 				body: JSON.stringify(employeeData),
 				headers: {
 					"content-type": "application/json",
