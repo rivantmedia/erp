@@ -1,5 +1,5 @@
 import { useRoles } from "@/context/RolesContext";
-import { Roles } from "@/lib/permissions";
+import { Roles } from "@/lib/UserPermissions";
 import { Checkbox, Notification } from "@mantine/core";
 import {
 	Box,
