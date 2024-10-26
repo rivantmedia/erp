@@ -1,8 +1,6 @@
 import { NextRequest } from "next/server";
 import { PrismaClient, Prisma } from "@prisma/client";
-import { getServerSession } from "next-auth";
 import * as yup from "yup";
-import { Roles } from "@/lib/UserPermissions";
 import { accessCheckError } from "@/lib/routeProtection";
 
 const prisma = new PrismaClient();
@@ -18,9 +16,7 @@ const DELETESchema = yup.object({
 });
 
 export async function POST(req: NextRequest) {
-	const accessError = await accessCheckError(
-		Roles.ROLES_READ & Roles.ROLES_CREATE
-	);
+	const accessError = await accessCheckError(["ROLES_READ", "ROLES_CREATE"]);
 
 	if (accessError) {
 		return Response.json(
@@ -55,7 +51,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
-	const accessError = await accessCheckError(Roles.ROLES_READ);
+	const accessError = await accessCheckError("ROLES_READ");
 
 	if (accessError) {
 		return Response.json(
@@ -79,9 +75,7 @@ export async function GET() {
 }
 
 export async function DELETE(req: NextRequest) {
-	const accessError = await accessCheckError(
-		Roles.ROLES_READ & Roles.ROLES_DELETE
-	);
+	const accessError = await accessCheckError(["ROLES_READ", "ROLES_DELETE"]);
 
 	if (accessError) {
 		return Response.json(

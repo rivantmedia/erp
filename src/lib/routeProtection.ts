@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./authOptions";
-import UserPermissions from "./UserPermissions";
+import UserPermissions, { PermissionsResolvable } from "./UserPermissions";
 
 const prisma = new PrismaClient();
 
@@ -11,7 +11,9 @@ const prisma = new PrismaClient();
  * @returns
  */
 
-export async function accessCheckError(permissionsRequired: number) {
+export async function accessCheckError(
+	permissionsRequired: PermissionsResolvable
+) {
 	const session = await getServerSession(authOptions);
 
 	if (!session) {
