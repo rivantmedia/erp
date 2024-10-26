@@ -4,7 +4,8 @@ import { createContext, useContext, useEffect, useReducer } from "react";
 
 const EmployeesContext = createContext({});
 
-type Employee = {
+export type Employee = {
+	id: string;
 	fname: string;
 	lname: string;
 	title: string;

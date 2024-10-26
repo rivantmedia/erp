@@ -187,7 +187,9 @@ export async function GET() {
 
 	if (accessError === null) {
 		try {
-			const tasks = await prisma.task.findMany({});
+			const tasks = await prisma.task.findMany({
+				include: { Submissions: true }
+			});
 			return Response.json(tasks, { status: 200 });
 		} catch (error) {
 			console.log("Failed to get employees", error);
@@ -208,7 +210,8 @@ export async function GET() {
 						{ assigneeId: session?.user.id as string },
 						{ creatorId: session?.user.id as string }
 					]
-				}
+				},
+				include: { Submissions: true }
 			});
 			return Response.json(tasks, { status: 200 });
 		} catch (error) {
