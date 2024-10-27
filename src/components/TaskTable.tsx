@@ -16,8 +16,8 @@ import { Task, useTasks } from "@/context/TasksContext";
 import { useEmployees } from "@/context/EmployeesContext";
 import UpdateTaskForm from "./UpdateTaskForm";
 
-export default function TaskTable() {
-	const { tasks, isLoading, removeTask } = useTasks() as {
+export default function TaskTable({ tasks }: { tasks: Task[] }) {
+	const { isLoading, removeTask } = useTasks() as {
 		tasks: Task[];
 		isLoading: boolean;
 		removeTask: (taskId: string) => void;
@@ -125,7 +125,10 @@ export default function TaskTable() {
 	return (
 		<>
 			{isLoading ? (
-				<Center h="100%">
+				<Center
+					h="100%"
+					mt="lg"
+				>
 					<Loader />
 				</Center>
 			) : tasks.length !== 0 ? (
