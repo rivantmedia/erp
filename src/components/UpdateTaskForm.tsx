@@ -4,8 +4,7 @@ import { Notification, Select, Textarea } from "@mantine/core";
 import { Box, Button, Group, LoadingOverlay, TextInput } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
-import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface TaskFormValues {
 	name: string;
@@ -13,17 +12,19 @@ interface TaskFormValues {
 	summary: string;
 	description: string;
 	assigneeId: string;
+	creatorId: string;
+	calendarEventId: string;
 }
 
-function CreateTaskForm() {
+function UpdateTaskForm({ id }: { id: string }) {
 	const [notification, setNotification] = useState<string | null>(null);
-	const { data: session } = useSession();
 	const [date, setDate] = useState<[Date | null, Date | null]>([null, null]);
 	const { employees } = useEmployees() as {
 		employees: Employee[];
 	};
-	const { addTask, error, isLoading } = useTasks() as {
-		addTask: (newTask: Task) => void;
+	const { tasks, updateTask, error, isLoading } = useTasks() as {
+		tasks: Task[];
+		updateTask: (newTask: Task) => void;
 		error: string;
 		isLoading: boolean;
 	};
@@ -35,7 +36,9 @@ function CreateTaskForm() {
 			project: "",
 			summary: "",
 			description: "",
-			assigneeId: ""
+			assigneeId: "",
+			creatorId: "",
+			calendarEventId: ""
 		},
 		validate: {
 			name: hasLength(
@@ -54,9 +57,25 @@ function CreateTaskForm() {
 				{ min: 2 },
 				"Description must be more than 2 characters long"
 			),
-			assigneeId: isNotEmpty("Assignee is required")
+			assigneeId: isNotEmpty("Assignee is required"),
+			creatorId: isNotEmpty("Assignee is required")
 		}
 	});
+
+	useEffect(() => {
+		if (id) {
+			const task = tasks.find((t) => t.id === id);
+			if (task) {
+				form.setInitialValues({
+					...task,
+					calendarEventId: task.calendarEventId || ""
+				});
+				form.setValues(task);
+				setDate([new Date(task.start), new Date(task.end)]);
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [id, tasks]);
 
 	async function handleForm(values: TaskFormValues) {
 		const assignedEmail = employees.find(
@@ -67,19 +86,12 @@ function CreateTaskForm() {
 			setNotification("error");
 			return;
 		}
-		const newTask = {
-			...values,
-			assignedEmail,
-			start: start,
-			end: end,
-			creatorId: session?.user.id as string
-		};
+		const taskData = { ...values, id, assignedEmail, start, end };
 		if (form.isValid()) {
-			await addTask(newTask);
+			console.log(values);
+			await updateTask(taskData);
 			if (!error) {
-				setNotification("Created");
-				form.reset();
-				setDate([null, null]);
+				setNotification("Updated");
 			}
 		}
 	}
@@ -91,14 +103,14 @@ function CreateTaskForm() {
 					title={
 						notification === "error"
 							? "Task Duration Empty"
-							: "Task Created"
+							: "Task Updated"
 					}
 					color={notification === "error" ? "red" : "green"}
 					onClose={() => setNotification(null)}
 				>
 					{notification === "error"
 						? "Please Pick Task Duration"
-						: "Task has been created successfully"}
+						: "Task has been updated successfully"}
 				</Notification>
 			)}
 			<Box pos="relative">
@@ -157,6 +169,18 @@ function CreateTaskForm() {
 						key={form.key("assigneeId")}
 						{...form.getInputProps("assigneeId")}
 					/>
+					<Select
+						withAsterisk
+						label="Task Assigned By:"
+						mt="md"
+						disabled
+						data={employees.map((e) => ({
+							label: `${e.fname} ${e.lname}`,
+							value: e.id
+						}))}
+						key={form.key("creatorId")}
+						{...form.getInputProps("creatorId")}
+					/>
 					<Group
 						justify="center"
 						mt="md"
@@ -169,4 +193,4 @@ function CreateTaskForm() {
 	);
 }
 
-export default CreateTaskForm;
+export default UpdateTaskForm;

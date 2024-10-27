@@ -12,9 +12,9 @@ import {
 } from "@mantine/core";
 import { IconTrash } from "@tabler/icons-react";
 import ModalContainer from "./ModalContainer";
-import UpdateEmployeeForm from "@/components/UpdateEmployeeForm";
 import { Task, useTasks } from "@/context/TasksContext";
 import { useEmployees } from "@/context/EmployeesContext";
+import UpdateTaskForm from "./UpdateTaskForm";
 
 export default function TaskTable() {
 	const { tasks, isLoading, removeTask } = useTasks() as {
@@ -105,7 +105,7 @@ export default function TaskTable() {
 						title="Edit Employee"
 						type="edit"
 					>
-						<UpdateEmployeeForm taskId={task.id} />
+						<UpdateTaskForm id={task.id as string} />
 					</ModalContainer>
 					<ActionIcon
 						variant="subtle"

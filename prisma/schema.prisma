@@ -54,6 +54,7 @@ model Submission {
   submissionDate DateTime
   note           String
   status         String
+  remarks        String
   taskId         String   @db.ObjectId
   task           Task     @relation(fields: [taskId], references: [id]) // Many submissions relate to one task
 }

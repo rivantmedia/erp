@@ -89,7 +89,6 @@ function UpdateEmployeeForm({ employeeId }: { employeeId: number }) {
 
 	async function handleForm(values: EmployeeFormValues) {
 		if (form.isValid()) {
-			console.log(values);
 			await updateEmployee(values);
 			if (!error) {
 				setNotification(true);

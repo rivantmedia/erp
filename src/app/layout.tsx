@@ -5,7 +5,6 @@ import "./globals.css";
 
 import { MantineProvider } from "@mantine/core";
 import SessionWrapper from "@/components/SessionWrapper";
-import { DatesProvider } from "@mantine/dates";
 
 export const metadata: Metadata = {
 	title: "Rivant Media ERP",
@@ -22,9 +21,7 @@ export default function RootLayout({
 			<body>
 				<SessionWrapper>
 					<MantineProvider defaultColorScheme="dark">
-						<DatesProvider settings={{ consistentWeeks: true }}>
-							{children}
-						</DatesProvider>
+						{children}
 					</MantineProvider>
 				</SessionWrapper>
 			</body>
