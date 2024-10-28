@@ -15,10 +15,16 @@ export const authOptions: NextAuthOptions = {
 	callbacks: {
 		async session({ session }) {
 			const userFromDB = await prisma.employee.findUnique({
-				where: { email: session.user?.email as string }
+				where: { email: session.user?.email as string },
+				include: { role: true }
 			});
 			if (userFromDB) {
-				session.user = { ...session.user, ...userFromDB };
+				session.user = {
+					...session.user,
+					...userFromDB,
+					roleId: userFromDB.roleId ?? undefined,
+					role: userFromDB.role ?? undefined
+				};
 			}
 			return session;
 		}

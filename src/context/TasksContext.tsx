@@ -86,7 +86,6 @@ function TasksProvider({ children }: { children: React.ReactNode }) {
 				const res = await fetch("/api/tasks");
 				const data = await res.json();
 				dispatch({ type: "tasks/loaded", payload: data });
-				console.log(data);
 			} catch {
 				dispatch({
 					type: "rejected",

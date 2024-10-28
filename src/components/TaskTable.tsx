@@ -16,7 +16,13 @@ import { Task, useTasks } from "@/context/TasksContext";
 import { useEmployees } from "@/context/EmployeesContext";
 import UpdateTaskForm from "./UpdateTaskForm";
 
-export default function TaskTable({ tasks }: { tasks: Task[] }) {
+export default function TaskTable({
+	tasks,
+	taskEditPermission
+}: {
+	tasks: Task[];
+	taskEditPermission: boolean;
+}) {
 	const { isLoading, removeTask } = useTasks() as {
 		tasks: Task[];
 		isLoading: boolean;
@@ -96,29 +102,31 @@ export default function TaskTable({ tasks }: { tasks: Task[] }) {
 					</ModalContainer>
 				</Group>
 			</Table.Td>
-			<Table.Td>
-				<Group
-					gap={0}
-					justify="flex-end"
-				>
-					<ModalContainer
-						title="Edit Employee"
-						type="edit"
+			{taskEditPermission && (
+				<Table.Td>
+					<Group
+						gap={0}
+						justify="flex-end"
 					>
-						<UpdateTaskForm id={task.id as string} />
-					</ModalContainer>
-					<ActionIcon
-						variant="subtle"
-						color="red"
-						onClick={() => removeTask(task.id as string)}
-					>
-						<IconTrash
-							style={{ width: rem(16), height: rem(16) }}
-							stroke={1.5}
-						/>
-					</ActionIcon>
-				</Group>
-			</Table.Td>
+						<ModalContainer
+							title="Edit Employee"
+							type="edit"
+						>
+							<UpdateTaskForm id={task.id as string} />
+						</ModalContainer>
+						<ActionIcon
+							variant="subtle"
+							color="red"
+							onClick={() => removeTask(task.id as string)}
+						>
+							<IconTrash
+								style={{ width: rem(16), height: rem(16) }}
+								stroke={1.5}
+							/>
+						</ActionIcon>
+					</Group>
+				</Table.Td>
+			)}
 		</Table.Tr>
 	));
 
@@ -145,7 +153,7 @@ export default function TaskTable({ tasks }: { tasks: Task[] }) {
 								<Table.Th>Assignee</Table.Th>
 								<Table.Th>Creator</Table.Th>
 								<Table.Th>Submissions</Table.Th>
-								<Table.Th />
+								{taskEditPermission && <Table.Th />}
 							</Table.Tr>
 						</Table.Thead>
 						<Table.Tbody>{rows}</Table.Tbody>

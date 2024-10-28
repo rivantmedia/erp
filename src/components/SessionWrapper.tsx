@@ -5,12 +5,20 @@ import React from "react";
 declare module "next-auth" {
 	interface Session {
 		user: {
-			id?: string | null;
-			name?: string | null;
-			email?: string | null;
-			image?: string | null;
-			roleId?: string | null;
-			sAdmin?: boolean | null;
+			id?: string;
+			name?: string;
+			email?: string;
+			image?: string;
+			roleId?: string;
+			title?: string;
+			contact?: number;
+			sAdmin?: boolean;
+			role?: {
+				id: string;
+				index: number;
+				name: string;
+				permissions: number;
+			};
 		};
 	}
 }

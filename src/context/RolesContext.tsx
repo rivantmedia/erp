@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 //TODO: Add error handling for fetch requests with status !== 2xx
 
 import { createContext, useContext, useEffect, useReducer } from "react";
@@ -61,6 +62,7 @@ function RolesProvider({ children }: { children: React.ReactNode }) {
 		reducer,
 		initialState
 	);
+	const { data: session } = useSession();
 
 	useEffect(() => {
 		async function fetchRoles() {
@@ -125,9 +127,35 @@ function RolesProvider({ children }: { children: React.ReactNode }) {
 		}
 	}
 
+	function accessCheckError(permissionsRequired: number) {
+		if (!session) {
+			return "Login Required";
+		}
+
+		if (session.user.sAdmin) return true;
+
+		//Check if user has enough permissions in case permissions are required to perform action
+		if (!session.user.role && permissionsRequired) return false;
+
+		const fetchedRole = session.user.role?.permissions;
+
+		if (!fetchedRole || !(fetchedRole & permissionsRequired)) {
+			return false;
+		}
+
+		return true;
+	}
+
 	return (
 		<RolesContext.Provider
-			value={{ roles, isLoading, error, addRole, removeRole }}
+			value={{
+				roles,
+				isLoading,
+				error,
+				addRole,
+				removeRole,
+				accessCheckError
+			}}
 		>
 			{children}
 		</RolesContext.Provider>
@@ -139,10 +167,7 @@ function useRoles() {
 	if (context === undefined) {
 		throw new Error("useRoles must be used within a RolesProvider");
 	}
-	return context as typeof initialState & {
-		addRole: (newRole: object) => void;
-		removeRole: (roleId: string) => void;
-	};
+	return context;
 }
 
 export { RolesProvider, useRoles };
