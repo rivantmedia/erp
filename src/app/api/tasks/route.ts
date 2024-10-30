@@ -2,7 +2,6 @@ import { NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import * as yup from "yup";
 import { accessCheckError } from "@/lib/routeProtection";
-import { Roles } from "@/lib/permissions";
 import { google } from "googleapis";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
@@ -41,9 +40,10 @@ const DELETESchema = yup.object({
 });
 
 export async function POST(req: NextRequest) {
-	const accessError = await accessCheckError(
-		Roles.EMPLOYEES_READ & Roles.TASKS_CREATE
-	);
+	const accessError = await accessCheckError([
+		"EMPLOYEES_READ",
+		"TASKS_CREATE"
+	]);
 
 	if (accessError) {
 		return Response.json(
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
 	const session = await getServerSession(authOptions);
-	const accessError1 = await accessCheckError(Roles.TASKS_EDIT);
+	const accessError1 = await accessCheckError(["TASKS_EDIT"]);
 
 	try {
 		const data = await PATCHSchema.validate(await req.json());
@@ -182,7 +182,7 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function GET() {
-	const accessError = await accessCheckError(Roles.TASKS_VIEW_ALL);
+	const accessError = await accessCheckError(["TASKS_VIEW_ALL"]);
 	const session = await getServerSession(authOptions);
 
 	if (accessError === null) {
@@ -200,7 +200,7 @@ export async function GET() {
 		}
 	}
 
-	const accessError2 = await accessCheckError(Roles.TASKS_VIEW);
+	const accessError2 = await accessCheckError(["TASKS_VIEW"]);
 
 	if (accessError2 === null) {
 		try {
@@ -231,7 +231,7 @@ export async function GET() {
 
 export async function DELETE(req: NextRequest) {
 	const session = await getServerSession(authOptions);
-	const accessError1 = await accessCheckError(Roles.TASKS_DELETE);
+	const accessError1 = await accessCheckError(["TASKS_DELETE"]);
 
 	try {
 		const data = await DELETESchema.validate(await req.json());

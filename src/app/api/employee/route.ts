@@ -2,7 +2,6 @@ import { NextRequest } from "next/server";
 import { PrismaClient, Prisma } from "@prisma/client";
 import * as yup from "yup";
 import { accessCheckError } from "@/lib/routeProtection";
-import { Roles } from "@/lib/permissions";
 
 const prisma = new PrismaClient();
 
@@ -34,9 +33,7 @@ const DELETESchema = yup.object({
 });
 
 export async function POST(req: NextRequest) {
-	const accessError = await accessCheckError(
-		Roles.EMPLOYEES_READ_SENSITIVE_INFO & Roles.EMPLOYEES_CREATE
-	);
+	const accessError = await accessCheckError(["EMPLOYEES_CREATE"]);
 
 	if (accessError) {
 		return Response.json(
@@ -71,9 +68,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-	const accessError = await accessCheckError(
-		Roles.EMPLOYEES_READ_SENSITIVE_INFO & Roles.EMPLOYEES_UPDATE
-	);
+	const accessError = await accessCheckError(["EMPLOYEES_UPDATE"]);
 
 	if (accessError) {
 		return Response.json(
@@ -108,7 +103,7 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function GET() {
-	const accessError = await accessCheckError(Roles.EMPLOYEES_READ);
+	const accessError = await accessCheckError(["EMPLOYEES_READ"]);
 
 	if (accessError) {
 		return Response.json(
@@ -132,9 +127,7 @@ export async function GET() {
 }
 
 export async function DELETE(req: NextRequest) {
-	const accessError = await accessCheckError(
-		Roles.EMPLOYEES_READ_SENSITIVE_INFO & Roles.EMPLOYEES_DELETE
-	);
+	const accessError = await accessCheckError(["EMPLOYEES_DELETE"]);
 
 	if (accessError) {
 		return Response.json(

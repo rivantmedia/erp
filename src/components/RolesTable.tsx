@@ -1,6 +1,6 @@
 "use client";
 
-import { useRoles } from "@/context/RolesContext";
+import { Role, useRoles } from "@/context/RolesContext";
 import {
 	Badge,
 	Table,
@@ -14,11 +14,15 @@ import {
 import { IconTrash } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ModalContainer from "./ModalContainer";
-import { getPermissionStrings } from "@/lib/UserPermissions";
+import UserPermissions from "@/lib/UserPermissions";
 
 export default function RolesTable() {
 	const { data: session } = useSession();
-	const { roles, removeRole, isLoading } = useRoles();
+	const { roles, removeRole, isLoading } = useRoles() as {
+		roles: Role[];
+		isLoading: boolean;
+		removeRole: (roleId: string) => void;
+	};
 
 	const rows = roles.map((role) => (
 		<Table.Tr key={role.id}>
@@ -35,10 +39,11 @@ export default function RolesTable() {
 
 			<Table.Td>
 				{role.permissions ? (
-					getPermissionStrings(role.permissions).map((s) => (
+					new UserPermissions(role.permissions).toArray().map((s) => (
 						<Badge
 							variant="light"
 							key={s}
+							ms="xs"
 						>
 							{s}
 						</Badge>

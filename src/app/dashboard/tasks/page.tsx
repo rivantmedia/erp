@@ -6,8 +6,8 @@ import { Group, Text } from "@mantine/core";
 import TaskTable from "@/components/TaskTable";
 import CreateTaskForm from "@/components/CreateTaskForm";
 import { Task, useTasks } from "@/context/TasksContext";
-import { Roles } from "@/lib/permissions";
 import { useRoles } from "@/context/RolesContext";
+import { PermissionsResolvable } from "@/lib/UserPermissions";
 
 export default function Main() {
 	const { data: session } = useSession();
@@ -15,13 +15,15 @@ export default function Main() {
 		tasks: Task[];
 	};
 	const { accessCheckError } = useRoles() as {
-		accessCheckError: (permissionRequired: number) => boolean;
+		accessCheckError: (
+			permissionRequired: PermissionsResolvable
+		) => boolean;
 	};
 
-	const taskViewAllPermission = accessCheckError(Roles.TASKS_VIEW_ALL);
-	const taskViewPermission = accessCheckError(Roles.TASKS_VIEW);
-	const taskCreatePermission = accessCheckError(Roles.TASKS_CREATE);
-	const taskEditAllPermission = accessCheckError(Roles.TASKS_EDIT);
+	const taskViewAllPermission = accessCheckError(["TASKS_VIEW_ALL"]);
+	const taskViewPermission = accessCheckError(["TASKS_VIEW"]);
+	const taskCreatePermission = accessCheckError(["TASKS_CREATE"]);
+	const taskEditAllPermission = accessCheckError(["TASKS_EDIT"]);
 
 	const tasksAssignedToYou = tasks.filter(
 		(task) => task.assigneeId === session?.user.id

@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import UserPermissions, { PermissionsResolvable } from "@/lib/UserPermissions";
 //TODO: Add error handling for fetch requests with status !== 2xx
 
 import { createContext, useContext, useEffect, useReducer } from "react";
@@ -127,9 +128,9 @@ function RolesProvider({ children }: { children: React.ReactNode }) {
 		}
 	}
 
-	function accessCheckError(permissionsRequired: number) {
+	function accessCheckError(permissionsRequired: PermissionsResolvable) {
 		if (!session) {
-			return "Login Required";
+			return false;
 		}
 
 		if (session.user.sAdmin) return true;
@@ -139,7 +140,10 @@ function RolesProvider({ children }: { children: React.ReactNode }) {
 
 		const fetchedRole = session.user.role?.permissions;
 
-		if (!fetchedRole || !(fetchedRole & permissionsRequired)) {
+		if (
+			!fetchedRole ||
+			!new UserPermissions(fetchedRole).has(permissionsRequired)
+		) {
 			return false;
 		}
 
