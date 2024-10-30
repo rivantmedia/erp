@@ -14,7 +14,7 @@ import {
 import { IconTrash } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ModalContainer from "./ModalContainer";
-import { getPermissionStrings } from "@/lib/permissions";
+import { getPermissionStrings } from "@/lib/UserPermissions";
 
 export default function RolesTable() {
 	const { data: session } = useSession();

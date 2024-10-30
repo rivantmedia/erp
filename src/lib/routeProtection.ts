@@ -1,10 +1,19 @@
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./authOptions";
+import UserPermissions, { PermissionsResolvable } from "./UserPermissions";
 
 const prisma = new PrismaClient();
 
-export async function accessCheckError(permissionsRequired: number) {
+/**
+ * Check if a user has sufficient permissions to perform an action
+ * @param permissionsRequired
+ * @returns
+ */
+
+export async function accessCheckError(
+	permissionsRequired: PermissionsResolvable
+) {
 	const session = await getServerSession(authOptions);
 
 	if (!session) {
@@ -21,7 +30,10 @@ export async function accessCheckError(permissionsRequired: number) {
 		where: { id: session.user.roleId! }
 	});
 
-	if (!fetchedRole || !(fetchedRole.permissions & permissionsRequired)) {
+	if (
+		!fetchedRole ||
+		!new UserPermissions(fetchedRole.permissions).has(permissionsRequired)
+	) {
 		return { message: "Missing Permissions", status: 401 };
 	}
 

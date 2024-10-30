@@ -1,35 +1,4 @@
-export enum Roles {
-	//TASKS
-	TASKS_CREATE = 1 << 0, //Create & Assign tasks to any other user
-	TASKS_VIEW = 1 << 1, //View tasks assigned to them, and tasks assigned by them
-	TASKS_VIEW_ALL = 1 << 2, //View all tasks in the company
-	TASKS_EDIT = 1 << 3, //Edit task information for tasks not assigned by them
-	TASKS_DELETE = 1 << 4, //Delete tasks not assigned by them
-	//ASSETS
-	ASSETS_CREATE = 1 << 5,
-	ASSETS_READ = 1 << 6,
-	ASSETS_UPDATE = 1 << 7,
-	ASSETS_DELETE = 1 << 8,
-	//EMPLOYEES
-	EMPLOYEES_CREATE = 1 << 9,
-	EMPLOYEES_READ = 1 << 10,
-	EMPLOYEES_READ_BASIC_INFO = 1 << 11,
-	EMPLOYEES_READ_SENSITIVE_INFO = 1 << 12,
-	EMPLOYEES_UPDATE = 1 << 13,
-	EMPLOYEES_DELETE = 1 << 14,
-	//ROLES
-	ROLES_CREATE = 1 << 15,
-	ROLES_READ = 1 << 16,
-	ROLES_UPDATE = 1 << 17,
-	ROLES_DELETE = 1 << 18,
-	//PROJECTS
-	PROJECTS_CREATE = 1 << 19,
-	PROJECTS_READ = 1 << 20,
-	PROJECTS_READ_ALL = 1 << 21,
-	PROJECTS_UPDATE = 1 << 22,
-	PROJECTS_DELETE = 1 << 23
-	//DOCUMENTS [NOT IMPLEMENTED]
-}
+import BitField, { BitFieldResolvable } from "./BitField";
 
 // TASKS
 /**
@@ -82,18 +51,50 @@ export enum Roles {
  * ROLES_DELETE - Delete roles only below their role heirarchy
  */
 
-const enumMap = new Map<string, number>([]);
+/**
+ * Data structure that makes it easy to interact with a bitfield.
+ */
+export class UserPermissions extends BitField<
+	keyof typeof UserPermissions.Flags
+> {
+	public static Flags = {
+		//TASKS
+		TASKS_CREATE: 1 << 0, //Create & Assign tasks to any other user
+		TASKS_VIEW: 1 << 1, //View tasks assigned to them, and tasks assigned by them
+		TASKS_VIEW_ALL: 1 << 2, //View all tasks in the company
+		TASKS_EDIT: 1 << 3, //Edit task information for tasks not assigned by them
+		TASKS_DELETE: 1 << 4, //Delete tasks not assigned by them
+		//ASSETS
+		ASSETS_CREATE: 1 << 5,
+		ASSETS_READ: 1 << 6,
+		ASSETS_UPDATE: 1 << 7,
+		ASSETS_DELETE: 1 << 8,
+		//EMPLOYEES
+		EMPLOYEES_CREATE: 1 << 9,
+		EMPLOYEES_READ: 1 << 10,
+		EMPLOYEES_READ_BASIC_INFO: 1 << 11,
+		EMPLOYEES_READ_SENSITIVE_INFO: 1 << 12,
+		EMPLOYEES_UPDATE: 1 << 13,
+		EMPLOYEES_DELETE: 1 << 14,
+		//ROLES
+		ROLES_CREATE: 1 << 15,
+		ROLES_READ: 1 << 16,
+		ROLES_UPDATE: 1 << 17,
+		ROLES_DELETE: 1 << 18,
+		//PROJECTS
+		PROJECTS_CREATE: 1 << 19,
+		PROJECTS_READ: 1 << 20,
+		PROJECTS_READ_ALL: 1 << 21,
+		PROJECTS_UPDATE: 1 << 22,
+		PROJECTS_DELETE: 1 << 23
+		//DOCUMENTS [NOT IMPLEMENTED]
+	} as const;
 
-for (const key of Object.keys(Roles).filter((v) => isNaN(Number(v)))) {
-	enumMap.set(key, Roles[key as keyof typeof Roles]);
+	public readonly DefaultBit = 0;
 }
 
-export function getPermissionStrings(permissions: number): string[] {
-	const permissionStrings: string[] = [];
-	enumMap.keys().forEach((permission) => {
-		if (permissions & enumMap.get(permission)!) {
-			permissionStrings.push(permission);
-		}
-	});
-	return permissionStrings;
-}
+export type PermissionsResolvable = BitFieldResolvable<
+	keyof typeof UserPermissions.Flags
+>;
+
+export default UserPermissions;
