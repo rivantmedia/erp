@@ -18,10 +18,12 @@ import UpdateTaskForm from "./UpdateTaskForm";
 
 export default function TaskTable({
 	tasks,
-	taskEditPermission
+	taskEditPermission,
+	taskDeletePermission
 }: {
 	tasks: Task[];
 	taskEditPermission: boolean;
+	taskDeletePermission: boolean;
 }) {
 	const { isLoading, removeTask } = useTasks() as {
 		tasks: Task[];
@@ -102,18 +104,20 @@ export default function TaskTable({
 					</ModalContainer>
 				</Group>
 			</Table.Td>
-			{taskEditPermission && (
-				<Table.Td>
-					<Group
-						gap={0}
-						justify="flex-end"
-					>
+			<Table.Td>
+				<Group
+					gap={0}
+					justify="flex-end"
+				>
+					{taskEditPermission && (
 						<ModalContainer
 							title="Edit Employee"
 							type="edit"
 						>
 							<UpdateTaskForm id={task.id as string} />
 						</ModalContainer>
+					)}
+					{taskDeletePermission && (
 						<ActionIcon
 							variant="subtle"
 							color="red"
@@ -124,9 +128,9 @@ export default function TaskTable({
 								stroke={1.5}
 							/>
 						</ActionIcon>
-					</Group>
-				</Table.Td>
-			)}
+					)}
+				</Group>
+			</Table.Td>
 		</Table.Tr>
 	));
 

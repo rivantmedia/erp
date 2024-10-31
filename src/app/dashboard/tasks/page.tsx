@@ -24,6 +24,7 @@ export default function Main() {
 	const taskViewPermission = accessCheckError(["TASKS_VIEW"]);
 	const taskCreatePermission = accessCheckError(["TASKS_CREATE"]);
 	const taskEditAllPermission = accessCheckError(["TASKS_EDIT"]);
+	const taskDeleteAllPermission = accessCheckError(["TASKS_DELETE"]);
 
 	const tasksAssignedToYou = tasks.filter(
 		(task) => task.assigneeId === session?.user.id
@@ -63,6 +64,7 @@ export default function Main() {
 					<TaskTable
 						tasks={tasksAssignedByOther as Task[]}
 						taskEditPermission={taskEditAllPermission}
+						taskDeletePermission={taskDeleteAllPermission}
 					/>
 				</>
 			)}
@@ -80,6 +82,7 @@ export default function Main() {
 					<TaskTable
 						tasks={tasksAssignedToYou}
 						taskEditPermission={false}
+						taskDeletePermission={false}
 					/>
 					<Text
 						mt="xl"
@@ -93,6 +96,7 @@ export default function Main() {
 					<TaskTable
 						tasks={tasksAssignedByYou}
 						taskEditPermission={true}
+						taskDeletePermission={true}
 					/>
 				</>
 			)}

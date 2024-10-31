@@ -11,12 +11,17 @@ import {
 	rem
 } from "@mantine/core";
 import { IconTrash } from "@tabler/icons-react";
-import { useSession } from "next-auth/react";
 import ModalContainer from "./ModalContainer";
 import UpdateEmployeeForm from "@/components/UpdateEmployeeForm";
+import { useRoles } from "@/context/RolesContext";
+import { PermissionsResolvable } from "@/lib/UserPermissions";
 
 export default function EmployeeTable() {
-	const { data: session } = useSession();
+	const { accessCheckError } = useRoles() as {
+		accessCheckError: (
+			permissionRequired: PermissionsResolvable
+		) => boolean;
+	};
 	const { employees, removeEmployee } = useEmployees() as {
 		employees: {
 			fname: string;
@@ -29,6 +34,10 @@ export default function EmployeeTable() {
 		}[];
 		removeEmployee: (employeeId: number) => void;
 	};
+
+	const employeeEditPermission = accessCheckError(["EMPLOYEES_UPDATE"]);
+	const employeeDeletePermission = accessCheckError(["EMPLOYEES_DELETE"]);
+
 	const rows = employees.map((employee) => (
 		<Table.Tr key={employee.employeeId}>
 			<Table.Td>
@@ -57,11 +66,11 @@ export default function EmployeeTable() {
 				<Text fz="sm">{employee.contact}</Text>
 			</Table.Td>
 			<Table.Td>
-				{session?.user.sAdmin && (
-					<Group
-						gap={0}
-						justify="flex-end"
-					>
+				<Group
+					gap={0}
+					justify="flex-end"
+				>
+					{employeeEditPermission && (
 						<ModalContainer
 							title="Edit Employee"
 							type="edit"
@@ -70,6 +79,8 @@ export default function EmployeeTable() {
 								employeeId={employee.employeeId}
 							/>
 						</ModalContainer>
+					)}
+					{employeeDeletePermission && (
 						<ActionIcon
 							variant="subtle"
 							color="red"
@@ -80,8 +91,8 @@ export default function EmployeeTable() {
 								stroke={1.5}
 							/>
 						</ActionIcon>
-					</Group>
-				)}
+					)}
+				</Group>
 			</Table.Td>
 		</Table.Tr>
 	));

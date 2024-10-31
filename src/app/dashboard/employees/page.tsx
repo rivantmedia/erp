@@ -2,22 +2,37 @@
 
 import EmployeeTable from "@/components/EmployeeTable";
 import ModalContainer from "@/components/ModalContainer";
-import { useSession } from "next-auth/react";
 import CreateEmployeeForm from "@/components/CreateEmployeeForm";
-import { Group } from "@mantine/core";
+import { Group, Text } from "@mantine/core";
+import { useRoles } from "@/context/RolesContext";
+import { PermissionsResolvable } from "@/lib/UserPermissions";
 
 export default function Main() {
-	const { data: session } = useSession();
+	const { accessCheckError } = useRoles() as {
+		accessCheckError: (
+			permissionRequired: PermissionsResolvable
+		) => boolean;
+	};
+
+	const employeeReadPermission = accessCheckError(["EMPLOYEES_READ"]);
+	const employeeCreatePermission = accessCheckError(["EMPLOYEES_CREATE"]);
+
 	return (
 		<div>
-			{session?.user.sAdmin && (
+			{employeeCreatePermission && (
 				<Group justify="flex-end">
 					<ModalContainer title="Add Employee">
 						<CreateEmployeeForm />
 					</ModalContainer>
 				</Group>
 			)}
-			<EmployeeTable />
+			{employeeReadPermission ? (
+				<EmployeeTable />
+			) : (
+				<Text ta="center">
+					You do not have permission to view employees.
+				</Text>
+			)}
 		</div>
 	);
 }
