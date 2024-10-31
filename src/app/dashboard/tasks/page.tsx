@@ -57,6 +57,7 @@ export default function Main() {
 						fz="xl"
 						ta="center"
 						td="underline"
+						mb="xl"
 						fw={700}
 					>
 						Task Assigned By/To Others
@@ -75,6 +76,7 @@ export default function Main() {
 						fz="xl"
 						ta="center"
 						td="underline"
+						mb="xl"
 						fw={700}
 					>
 						Task Assigned To You
@@ -89,6 +91,7 @@ export default function Main() {
 						fz="xl"
 						ta="center"
 						td="underline"
+						mb="xl"
 						fw={700}
 					>
 						Task Assigned By You

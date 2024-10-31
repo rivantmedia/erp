@@ -1,5 +1,5 @@
 import { useDisclosure } from "@mantine/hooks";
-import { Modal, Button, ActionIcon, rem } from "@mantine/core";
+import { Modal, Button, ActionIcon } from "@mantine/core";
 import { IconPencil } from "@tabler/icons-react";
 
 function ModalContainer({
@@ -29,10 +29,11 @@ function ModalContainer({
 				<ActionIcon
 					onClick={open}
 					variant="subtle"
+					size="xl"
 					color="gray"
 				>
 					<IconPencil
-						style={{ width: rem(16), height: rem(16) }}
+						style={{ width: "70%", height: "70%" }}
 						stroke={1.5}
 					/>
 				</ActionIcon>

@@ -1,7 +1,13 @@
 import { useDisclosure } from "@mantine/hooks";
 import { Drawer, Button } from "@mantine/core";
 
-function DrawerContainer({ children }: { children: React.ReactNode }) {
+function DrawerContainer({
+	children,
+	title
+}: {
+	children: React.ReactNode;
+	title: string;
+}) {
 	const [opened, { open, close }] = useDisclosure(false);
 
 	return (
@@ -9,12 +15,12 @@ function DrawerContainer({ children }: { children: React.ReactNode }) {
 			<Drawer
 				opened={opened}
 				onClose={close}
-				title="Authentication"
+				title={title}
 			>
 				{children}
 			</Drawer>
 
-			<Button onClick={open}>Show Details</Button>
+			<Button onClick={open}>{title}</Button>
 		</>
 	);
 }

@@ -1,20 +1,10 @@
 "use client";
 
-import {
-	Badge,
-	Table,
-	Group,
-	Text,
-	ActionIcon,
-	rem,
-	Loader,
-	Center
-} from "@mantine/core";
-import { IconTrash } from "@tabler/icons-react";
-import ModalContainer from "./ModalContainer";
+import { Badge, Table, Group, Text, Loader, Center } from "@mantine/core";
 import { Task, useTasks } from "@/context/TasksContext";
 import { useEmployees } from "@/context/EmployeesContext";
-import UpdateTaskForm from "./UpdateTaskForm";
+import DrawerContainer from "./DrawerContainer";
+import TaskDetails from "./TaskDetails";
 
 export default function TaskTable({
 	tasks,
@@ -25,10 +15,8 @@ export default function TaskTable({
 	taskEditPermission: boolean;
 	taskDeletePermission: boolean;
 }) {
-	const { isLoading, removeTask } = useTasks() as {
-		tasks: Task[];
+	const { isLoading } = useTasks() as {
 		isLoading: boolean;
-		removeTask: (taskId: string) => void;
 	};
 	const { employees } = useEmployees() as {
 		employees: {
@@ -60,24 +48,6 @@ export default function TaskTable({
 				<Badge variant="light">{task.name}</Badge>
 			</Table.Td>
 			<Table.Td>
-				<Group gap="sm">
-					<Text
-						fz="sm"
-						fw={500}
-					>
-						{task.description}
-					</Text>
-				</Group>
-			</Table.Td>
-			<Table.Td>
-				<Text fz="sm">{task.summary}</Text>
-			</Table.Td>
-			<Table.Td>
-				<Badge variant="light">
-					{new Date(task.start).toLocaleDateString()}
-				</Badge>
-			</Table.Td>
-			<Table.Td>
 				<Badge variant="light">
 					{new Date(task.end).toLocaleDateString()}
 				</Badge>
@@ -94,17 +64,7 @@ export default function TaskTable({
 					{employees.find((e) => e.id === task.creatorId)?.lname}
 				</Badge>
 			</Table.Td>
-			<Table.Td>
-				<Group
-					gap={0}
-					justify="start"
-				>
-					<ModalContainer title="Submit">
-						Task Submission
-					</ModalContainer>
-				</Group>
-			</Table.Td>
-			<Table.Td>
+			{/* <Table.Td>
 				<Group
 					gap={0}
 					justify="flex-end"
@@ -130,6 +90,30 @@ export default function TaskTable({
 						</ActionIcon>
 					)}
 				</Group>
+			</Table.Td> */}
+			<Table.Td>
+				<Group
+					gap={0}
+					justify="start"
+				>
+					<DrawerContainer title="Task Details">
+						<TaskDetails
+							taskEditPermission={taskEditPermission}
+							taskDeletePermission={taskDeletePermission}
+							task={task}
+						/>
+					</DrawerContainer>
+				</Group>
+			</Table.Td>
+			<Table.Td>
+				<Group
+					gap={0}
+					justify="start"
+				>
+					<DrawerContainer title="Task Submissions">
+						Task Submissions
+					</DrawerContainer>
+				</Group>
 			</Table.Td>
 		</Table.Tr>
 	));
@@ -150,14 +134,11 @@ export default function TaskTable({
 							<Table.Tr>
 								<Table.Th>Project Name</Table.Th>
 								<Table.Th>Task Name</Table.Th>
-								<Table.Th>Task Description</Table.Th>
-								<Table.Th>Task Summary</Table.Th>
-								<Table.Th>Start Date</Table.Th>
 								<Table.Th>Due Date</Table.Th>
-								<Table.Th>Assignee</Table.Th>
+								<Table.Th>Assigned To</Table.Th>
 								<Table.Th>Creator</Table.Th>
+								<Table.Th>Details</Table.Th>
 								<Table.Th>Submissions</Table.Th>
-								{taskEditPermission && <Table.Th />}
 							</Table.Tr>
 						</Table.Thead>
 						<Table.Tbody>{rows}</Table.Tbody>
