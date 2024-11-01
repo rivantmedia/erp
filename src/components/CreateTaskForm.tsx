@@ -22,10 +22,10 @@ function CreateTaskForm() {
 	const { employees } = useEmployees() as {
 		employees: Employee[];
 	};
-	const { addTask, error, isLoading } = useTasks() as {
+	const { addTask, error, isChangeLoading } = useTasks() as {
 		addTask: (newTask: Task) => void;
 		error: string;
-		isLoading: boolean;
+		isChangeLoading: boolean;
 	};
 
 	const form = useForm({
@@ -103,7 +103,7 @@ function CreateTaskForm() {
 			)}
 			<Box pos="relative">
 				<LoadingOverlay
-					visible={isLoading}
+					visible={isChangeLoading}
 					zIndex={1000}
 					overlayProps={{ radius: "sm", blur: 2 }}
 					loaderProps={{ type: "bars" }}

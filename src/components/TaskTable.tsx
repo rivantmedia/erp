@@ -5,6 +5,7 @@ import { Task, useTasks } from "@/context/TasksContext";
 import { useEmployees } from "@/context/EmployeesContext";
 import DrawerContainer from "./DrawerContainer";
 import TaskDetails from "./TaskDetails";
+import SubmissionDetails from "./SubmissionDetails";
 
 export default function TaskTable({
 	tasks,
@@ -15,8 +16,8 @@ export default function TaskTable({
 	taskEditPermission: boolean;
 	taskDeletePermission: boolean;
 }) {
-	const { isLoading } = useTasks() as {
-		isLoading: boolean;
+	const { isTaskLoading } = useTasks() as {
+		isTaskLoading: boolean;
 	};
 	const { employees } = useEmployees() as {
 		employees: {
@@ -64,33 +65,6 @@ export default function TaskTable({
 					{employees.find((e) => e.id === task.creatorId)?.lname}
 				</Badge>
 			</Table.Td>
-			{/* <Table.Td>
-				<Group
-					gap={0}
-					justify="flex-end"
-				>
-					{taskEditPermission && (
-						<ModalContainer
-							title="Edit Employee"
-							type="edit"
-						>
-							<UpdateTaskForm id={task.id as string} />
-						</ModalContainer>
-					)}
-					{taskDeletePermission && (
-						<ActionIcon
-							variant="subtle"
-							color="red"
-							onClick={() => removeTask(task.id as string)}
-						>
-							<IconTrash
-								style={{ width: rem(16), height: rem(16) }}
-								stroke={1.5}
-							/>
-						</ActionIcon>
-					)}
-				</Group>
-			</Table.Td> */}
 			<Table.Td>
 				<Group
 					gap={0}
@@ -111,7 +85,7 @@ export default function TaskTable({
 					justify="start"
 				>
 					<DrawerContainer title="Task Submissions">
-						Task Submissions
+						<SubmissionDetails task={task} />
 					</DrawerContainer>
 				</Group>
 			</Table.Td>
@@ -120,7 +94,7 @@ export default function TaskTable({
 
 	return (
 		<>
-			{isLoading ? (
+			{isTaskLoading ? (
 				<Center
 					h="100%"
 					mt="lg"

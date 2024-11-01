@@ -32,12 +32,13 @@ interface EmployeeFormValues {
 
 function CreateEmployeeForm() {
 	const [notification, setNotification] = useState(false);
-	const { employees, isLoading, error, addEmployee } = useEmployees() as {
-		employees: EmployeeFormValues[];
-		isLoading: boolean;
-		error: string;
-		addEmployee: (employee: EmployeeFormValues) => void;
-	};
+	const { employees, isChangeLoading, error, addEmployee } =
+		useEmployees() as {
+			employees: EmployeeFormValues[];
+			isChangeLoading: boolean;
+			error: string;
+			addEmployee: (employee: EmployeeFormValues) => void;
+		};
 	const { roles } = useRoles() as { roles: Role[] };
 	const form = useForm({
 		mode: "uncontrolled",
@@ -111,7 +112,7 @@ function CreateEmployeeForm() {
 			)}
 			<Box pos="relative">
 				<LoadingOverlay
-					visible={isLoading}
+					visible={isChangeLoading}
 					zIndex={1000}
 					overlayProps={{ radius: "sm", blur: 2 }}
 					loaderProps={{ type: "bars" }}

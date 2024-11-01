@@ -19,12 +19,14 @@ export type Employee = {
 
 const initialState = {
 	employees: [] as Employee[],
-	isLoading: false,
+	isChangeLoading: false,
+	isEmployeeLoading: false,
 	error: ""
 };
 
 type Action =
-	| { type: "loading" }
+	| { type: "loadingChange" }
+	| { type: "loadingEmployee" }
 	| { type: "employees/loaded"; payload: Employee[] }
 	| { type: "rejected"; payload: string }
 	| { type: "employee/added"; payload: Employee }
@@ -33,17 +35,24 @@ type Action =
 
 function reducer(state: typeof initialState, action: Action) {
 	switch (action.type) {
-		case "loading":
-			return { ...state, isLoading: true };
+		case "loadingChange":
+			return { ...state, isChangeLoading: true };
+
+		case "loadingEmployee":
+			return { ...state, isEmployeeLoading: true };
 
 		case "employees/loaded":
-			return { ...state, employees: action.payload, isLoading: false };
+			return {
+				...state,
+				employees: action.payload,
+				isEmployeeLoading: false
+			};
 
 		case "employee/added":
 			return {
 				...state,
 				employees: [...state.employees, action.payload],
-				isLoading: false
+				isChangeLoading: false
 			};
 
 		case "employee/update":
@@ -54,7 +63,7 @@ function reducer(state: typeof initialState, action: Action) {
 						? action.payload
 						: e
 				),
-				isLoading: false
+				isChangeLoading: false
 			};
 
 		case "employee/removed":
@@ -63,11 +72,16 @@ function reducer(state: typeof initialState, action: Action) {
 				employees: state.employees.filter(
 					(e) => e.employeeId !== action.payload
 				),
-				isLoading: false
+				isEmployeeLoading: false
 			};
 
 		case "rejected":
-			return { ...state, error: action.payload, isLoading: false };
+			return {
+				...state,
+				error: action.payload,
+				isEmployeeLoading: false,
+				isChangeLoading: false
+			};
 
 		default:
 			throw new Error("Invalid action type");
@@ -75,14 +89,12 @@ function reducer(state: typeof initialState, action: Action) {
 }
 
 function EmployeesProvider({ children }: { children: React.ReactNode }) {
-	const [{ employees, isLoading, error }, dispatch] = useReducer(
-		reducer,
-		initialState
-	);
+	const [{ employees, isChangeLoading, isEmployeeLoading, error }, dispatch] =
+		useReducer(reducer, initialState);
 
 	useEffect(() => {
 		async function fetchEmployees() {
-			dispatch({ type: "loading" });
+			dispatch({ type: "loadingEmployee" });
 			try {
 				const res = await fetch("/api/employee");
 				const data = await res.json();
@@ -100,7 +112,7 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 
 	async function addEmployee(newEmployee: Employee) {
 		newEmployee = { ...newEmployee, sAdmin: false };
-		dispatch({ type: "loading" });
+		dispatch({ type: "loadingChange" });
 		try {
 			const res = await fetch("/api/employee", {
 				method: "POST",
@@ -121,7 +133,7 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 	}
 
 	async function updateEmployee(employeeData: Employee) {
-		dispatch({ type: "loading" });
+		dispatch({ type: "loadingChange" });
 		try {
 			const res = await fetch("/api/employee", {
 				method: "PATCH",
@@ -142,7 +154,7 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 	}
 
 	async function removeEmployee(employeeId: number) {
-		dispatch({ type: "loading" });
+		dispatch({ type: "loadingEmployee" });
 		try {
 			const res = await fetch("/api/employee", {
 				method: "DELETE",
@@ -167,7 +179,8 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 		<EmployeesContext.Provider
 			value={{
 				employees,
-				isLoading,
+				isChangeLoading,
+				isEmployeeLoading,
 				error,
 				addEmployee,
 				removeEmployee,

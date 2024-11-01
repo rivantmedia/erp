@@ -5,6 +5,15 @@ import { createContext, useContext, useEffect, useReducer } from "react";
 
 const tasksContext = createContext({});
 
+export type Submission = {
+	id: string;
+	note: string;
+	status: string;
+	remarks?: string;
+	submissionDate: Date;
+	taskId: string;
+};
+
 export type Task = {
 	id?: string;
 	name: string;
@@ -17,35 +26,43 @@ export type Task = {
 	assignedEmail?: string;
 	creatorId: string;
 	calendarEventId?: string;
+	Submissions?: Submission[];
 };
 
 const initialState = {
 	tasks: [] as Task[],
-	isLoading: false,
+	isTaskLoading: false,
+	isChangeLoading: false,
 	error: ""
 };
 
 type Action =
-	| { type: "loading" }
+	| { type: "taskLoading" }
+	| { type: "changeLoading" }
 	| { type: "tasks/loaded"; payload: Task[] }
 	| { type: "rejected"; payload: string }
 	| { type: "task/added"; payload: Task }
 	| { type: "task/removed"; payload: string }
-	| { type: "task/update"; payload: Task };
+	| { type: "task/update"; payload: Task }
+	| { type: "submission/added"; payload: Submission }
+	| { type: "submission/update"; payload: Submission };
 
 function reducer(state: typeof initialState, action: Action) {
 	switch (action.type) {
-		case "loading":
-			return { ...state, isLoading: true };
+		case "taskLoading":
+			return { ...state, isTaskLoading: true };
+
+		case "changeLoading":
+			return { ...state, isChangeLoading: true };
 
 		case "tasks/loaded":
-			return { ...state, tasks: action.payload, isLoading: false };
+			return { ...state, tasks: action.payload, isTaskLoading: false };
 
 		case "task/added":
 			return {
 				...state,
 				tasks: [...state.tasks, action.payload],
-				isLoading: false
+				isChangeLoading: false
 			};
 
 		case "task/update":
@@ -54,18 +71,58 @@ function reducer(state: typeof initialState, action: Action) {
 				tasks: state.tasks.map((e) =>
 					e.id === action.payload.id ? action.payload : e
 				),
-				isLoading: false
+				isChangeLoading: false
 			};
 
 		case "task/removed":
 			return {
 				...state,
 				tasks: state.tasks.filter((e) => e.id !== action.payload),
-				isLoading: false
+				isTaskLoading: false
+			};
+
+		case "submission/added":
+			return {
+				...state,
+				tasks: state.tasks.map((task) =>
+					task.id === action.payload.taskId
+						? {
+								...task,
+								Submissions: [
+									...(task.Submissions as Submission[]),
+									action.payload
+								]
+						  }
+						: task
+				),
+				isChangeLoading: false
+			};
+
+		case "submission/update":
+			return {
+				...state,
+				tasks: state.tasks.map((task) =>
+					task.id === action.payload.taskId
+						? {
+								...task,
+								Submissions: task.Submissions?.map(
+									(submission) =>
+										submission.id === action.payload.id
+											? action.payload
+											: submission
+								)
+						  }
+						: task
+				)
 			};
 
 		case "rejected":
-			return { ...state, error: action.payload, isLoading: false };
+			return {
+				...state,
+				error: action.payload,
+				isChangeLoading: false,
+				isTaskLoading: false
+			};
 
 		default:
 			throw new Error("Invalid action type");
@@ -73,15 +130,13 @@ function reducer(state: typeof initialState, action: Action) {
 }
 
 function TasksProvider({ children }: { children: React.ReactNode }) {
-	const [{ tasks, isLoading, error }, dispatch] = useReducer(
-		reducer,
-		initialState
-	);
+	const [{ tasks, isChangeLoading, isTaskLoading, error }, dispatch] =
+		useReducer(reducer, initialState);
 	const { data: session } = useSession();
 
 	useEffect(() => {
 		async function fetchTasks() {
-			dispatch({ type: "loading" });
+			dispatch({ type: "taskLoading" });
 			try {
 				const res = await fetch("/api/tasks");
 				const data = await res.json();
@@ -98,7 +153,7 @@ function TasksProvider({ children }: { children: React.ReactNode }) {
 	}, []);
 
 	async function addTask(newTask: Task) {
-		dispatch({ type: "loading" });
+		dispatch({ type: "changeLoading" });
 		try {
 			const res = await fetch("/api/tasks", {
 				method: "POST",
@@ -118,8 +173,32 @@ function TasksProvider({ children }: { children: React.ReactNode }) {
 		}
 	}
 
+	async function addSubmission(newSubmission: {
+		note: string;
+		taskId: string;
+	}) {
+		dispatch({ type: "changeLoading" });
+		try {
+			const res = await fetch("/api/submissions", {
+				method: "POST",
+				body: JSON.stringify(newSubmission),
+				headers: {
+					"content-type": "application/json",
+					"Accept": "application/json"
+				}
+			});
+			const data = await res.json();
+			dispatch({ type: "submission/added", payload: data });
+		} catch {
+			dispatch({
+				type: "rejected",
+				payload: "There was an error adding the submission"
+			});
+		}
+	}
+
 	async function updateTask(taskData: Task) {
-		dispatch({ type: "loading" });
+		dispatch({ type: "changeLoading" });
 		try {
 			const res = await fetch("/api/tasks", {
 				method: "PATCH",
@@ -139,8 +218,30 @@ function TasksProvider({ children }: { children: React.ReactNode }) {
 		}
 	}
 
+	async function updateSubmission(submissionData: {
+		id: string;
+		taskId: string;
+		status: string;
+		remarks: string;
+	}) {
+		try {
+			const res = await fetch("/api/submissions", {
+				method: "PATCH",
+				body: JSON.stringify(submissionData),
+				headers: {
+					"content-type": "application/json",
+					"Accept": "application/json"
+				}
+			});
+			const data = await res.json();
+			dispatch({ type: "submission/update", payload: data });
+		} catch {
+			console.log("There was an error updating the submission");
+		}
+	}
+
 	async function removeTask(taskId: string) {
-		dispatch({ type: "loading" });
+		dispatch({ type: "taskLoading" });
 		try {
 			const res = await fetch("/api/tasks", {
 				method: "DELETE",
@@ -168,11 +269,14 @@ function TasksProvider({ children }: { children: React.ReactNode }) {
 		<tasksContext.Provider
 			value={{
 				tasks,
-				isLoading,
+				isChangeLoading,
+				isTaskLoading,
 				error,
 				addTask,
 				removeTask,
-				updateTask
+				updateTask,
+				addSubmission,
+				updateSubmission
 			}}
 		>
 			{children}
@@ -183,7 +287,7 @@ function TasksProvider({ children }: { children: React.ReactNode }) {
 function useTasks() {
 	const context = useContext(tasksContext);
 	if (context === undefined) {
-		throw new Error("usetasks must be used within a tasksProvider");
+		throw new Error("useTasks must be used within a tasksProvider");
 	}
 	return context;
 }

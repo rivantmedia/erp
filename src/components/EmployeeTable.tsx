@@ -8,7 +8,9 @@ import {
 	Text,
 	ActionIcon,
 	Anchor,
-	rem
+	rem,
+	Center,
+	Loader
 } from "@mantine/core";
 import { IconTrash } from "@tabler/icons-react";
 import ModalContainer from "./ModalContainer";
@@ -22,7 +24,7 @@ export default function EmployeeTable() {
 			permissionRequired: PermissionsResolvable
 		) => boolean;
 	};
-	const { employees, removeEmployee } = useEmployees() as {
+	const { employees, isEmployeeLoading, removeEmployee } = useEmployees() as {
 		employees: {
 			fname: string;
 			lname: string;
@@ -32,6 +34,7 @@ export default function EmployeeTable() {
 			employeeId: number;
 			sAdmin: boolean;
 		}[];
+		isEmployeeLoading: boolean;
 		removeEmployee: (employeeId: number) => void;
 	};
 
@@ -98,19 +101,32 @@ export default function EmployeeTable() {
 	));
 
 	return (
-		<Table.ScrollContainer minWidth={800}>
-			<Table verticalSpacing="sm">
-				<Table.Thead>
-					<Table.Tr>
-						<Table.Th>Employee</Table.Th>
-						<Table.Th>Job title</Table.Th>
-						<Table.Th>Email</Table.Th>
-						<Table.Th>Phone</Table.Th>
-						<Table.Th />
-					</Table.Tr>
-				</Table.Thead>
-				<Table.Tbody>{rows}</Table.Tbody>
-			</Table>
-		</Table.ScrollContainer>
+		<>
+			{isEmployeeLoading ? (
+				<Center
+					h="100%"
+					mt="lg"
+				>
+					<Loader />
+				</Center>
+			) : employees.length !== 0 ? (
+				<Table.ScrollContainer minWidth={800}>
+					<Table verticalSpacing="sm">
+						<Table.Thead>
+							<Table.Tr>
+								<Table.Th>Employee</Table.Th>
+								<Table.Th>Job title</Table.Th>
+								<Table.Th>Email</Table.Th>
+								<Table.Th>Phone</Table.Th>
+								<Table.Th />
+							</Table.Tr>
+						</Table.Thead>
+						<Table.Tbody>{rows}</Table.Tbody>
+					</Table>
+				</Table.ScrollContainer>
+			) : (
+				<Text ta="center">No Employees Present</Text>
+			)}
+		</>
 	);
 }
