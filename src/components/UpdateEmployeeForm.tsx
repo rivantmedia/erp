@@ -16,9 +16,10 @@ import {
 	isNotEmpty,
 	useForm
 } from "@mantine/form";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface EmployeeFormValues {
+	id: string;
 	fname: string;
 	lname: string;
 	email: string;
@@ -30,7 +31,7 @@ interface EmployeeFormValues {
 	roleId: string;
 }
 
-function UpdateEmployeeForm({ employeeId }: { employeeId: number }) {
+function UpdateEmployeeForm({ id }: { id: string }) {
 	const [notification, setNotification] = useState(false);
 	const { employees, isChangeLoading, error, updateEmployee } =
 		useEmployees() as {
@@ -40,18 +41,20 @@ function UpdateEmployeeForm({ employeeId }: { employeeId: number }) {
 			updateEmployee: (employee: EmployeeFormValues) => void;
 		};
 	const { roles } = useRoles() as { roles: Role[] };
+	const employee = employees.find((e) => e.id === id);
 
 	const form = useForm({
 		mode: "uncontrolled",
 		initialValues: {
-			fname: "",
-			lname: "",
-			email: "",
-			employeeId: 0,
-			department: "",
-			title: "",
-			contact: 0,
-			roleId: ""
+			id: employee?.id || "",
+			fname: employee?.fname || "",
+			lname: employee?.lname || "",
+			email: employee?.email || "",
+			employeeId: employee?.employeeId || 0,
+			department: employee?.department || "",
+			title: employee?.title || "",
+			contact: employee?.contact || 0,
+			roleId: employee?.roleId || ""
 		},
 		validate: {
 			fname: hasLength(
@@ -76,17 +79,6 @@ function UpdateEmployeeForm({ employeeId }: { employeeId: number }) {
 			roleId: isNotEmpty("Role is required")
 		}
 	});
-
-	useEffect(() => {
-		if (employeeId) {
-			const employee = employees.find((e) => e.employeeId === employeeId);
-			if (employee) {
-				form.setInitialValues(employee);
-				form.setValues(employee);
-			}
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [employeeId, employees]);
 
 	async function handleForm(values: EmployeeFormValues) {
 		if (form.isValid()) {

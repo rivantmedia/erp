@@ -8,7 +8,7 @@ import {
 	Textarea
 } from "@mantine/core";
 import { hasLength, useForm } from "@mantine/form";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface SubmissionFormValues {
 	note: string;
@@ -26,7 +26,7 @@ function CreateSubmissionForm({ taskId }: { taskId: string }) {
 		mode: "uncontrolled",
 		initialValues: {
 			note: "",
-			taskId: ""
+			taskId: taskId
 		},
 		validate: {
 			note: hasLength(
@@ -35,10 +35,6 @@ function CreateSubmissionForm({ taskId }: { taskId: string }) {
 			)
 		}
 	});
-
-	useEffect(() => {
-		form.setFieldValue("taskId", taskId);
-	}, [form, taskId]);
 
 	async function handleForm(values: SubmissionFormValues) {
 		if (form.isValid()) {

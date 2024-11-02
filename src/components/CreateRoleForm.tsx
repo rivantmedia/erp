@@ -10,7 +10,7 @@ import {
 	TextInput
 } from "@mantine/core";
 import { hasLength, useForm } from "@mantine/form";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface RoleFormValues {
 	name: string;
@@ -26,11 +26,13 @@ function CreateRoleForm() {
 		error: string;
 		addRole: (values: RoleFormValues) => Promise<void>;
 	};
+	const indexes = roles.map((role) => role.index).sort((a, b) => a - b);
+	const last = indexes[indexes.length - 1];
 	const form = useForm({
 		mode: "uncontrolled",
 		initialValues: {
 			name: "",
-			index: 0,
+			index: last + 1,
 			permissions: 0
 		},
 		validate: {
@@ -48,12 +50,6 @@ function CreateRoleForm() {
 			}
 		}
 	});
-
-	useEffect(() => {
-		const indexes = roles.map((role) => role.index).sort((a, b) => a - b);
-		const last = indexes[indexes.length - 1];
-		form.setFieldValue("index", last + 1);
-	}, [roles, form]);
 
 	async function handleForm(values: RoleFormValues) {
 		if (form.isValid()) {

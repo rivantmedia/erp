@@ -28,17 +28,18 @@ function UpdateTaskForm({ id }: { id: string }) {
 		error: string;
 		isChangeLoading: boolean;
 	};
+	const task = tasks.find((t) => t.id === id);
 
 	const form = useForm({
 		mode: "uncontrolled",
 		initialValues: {
-			name: "",
-			project: "",
-			summary: "",
-			description: "",
-			assigneeId: "",
-			creatorId: "",
-			calendarEventId: ""
+			name: task?.name || "",
+			project: task?.project || "",
+			summary: task?.summary || "",
+			description: task?.description || "",
+			assigneeId: task?.assigneeId || "",
+			creatorId: task?.creatorId || "",
+			calendarEventId: task?.calendarEventId || ""
 		},
 		validate: {
 			name: hasLength(
@@ -63,19 +64,11 @@ function UpdateTaskForm({ id }: { id: string }) {
 	});
 
 	useEffect(() => {
-		if (id) {
-			const task = tasks.find((t) => t.id === id);
-			if (task) {
-				form.setInitialValues({
-					...task,
-					calendarEventId: task.calendarEventId || ""
-				});
-				form.setValues(task);
-				setDate([new Date(task.start), new Date(task.end)]);
-			}
+		if (task) {
+			setDate([new Date(task.start), new Date(task.end)]);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [id, tasks]);
+	}, []);
 
 	async function handleForm(values: TaskFormValues) {
 		const assignedEmail = employees.find(
@@ -83,7 +76,7 @@ function UpdateTaskForm({ id }: { id: string }) {
 		)?.email;
 		const [start, end] = date;
 		if (start === null || end === null) {
-			setNotification("error");
+			form.setErrors({ start: "Task Duration Empty" });
 			return;
 		}
 		const taskData = { ...values, id, assignedEmail, start, end };
@@ -100,17 +93,11 @@ function UpdateTaskForm({ id }: { id: string }) {
 		<>
 			{notification && (
 				<Notification
-					title={
-						notification === "error"
-							? "Task Duration Empty"
-							: "Task Updated"
-					}
-					color={notification === "error" ? "red" : "green"}
+					title="Task Created"
+					color="green"
 					onClose={() => setNotification(null)}
 				>
-					{notification === "error"
-						? "Please Pick Task Duration"
-						: "Task has been updated successfully"}
+					Task has been created successfully
 				</Notification>
 			)}
 			<Box pos="relative">
@@ -157,6 +144,7 @@ function UpdateTaskForm({ id }: { id: string }) {
 						placeholder="Pick Task Duration"
 						value={date}
 						onChange={setDate}
+						error={form.errors.start}
 					/>
 					<Select
 						withAsterisk

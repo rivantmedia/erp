@@ -64,7 +64,7 @@ function CreateTaskForm() {
 		)?.email;
 		const [start, end] = date;
 		if (start === null || end === null) {
-			setNotification("error");
+			form.setErrors({ start: "Task Duration Empty" });
 			return;
 		}
 		const newTask = {
@@ -88,17 +88,11 @@ function CreateTaskForm() {
 		<>
 			{notification && (
 				<Notification
-					title={
-						notification === "error"
-							? "Task Duration Empty"
-							: "Task Created"
-					}
-					color={notification === "error" ? "red" : "green"}
+					title="Task Created"
+					color="green"
 					onClose={() => setNotification(null)}
 				>
-					{notification === "error"
-						? "Please Pick Task Duration"
-						: "Task has been created successfully"}
+					Task has been created successfully
 				</Notification>
 			)}
 			<Box pos="relative">
@@ -145,6 +139,7 @@ function CreateTaskForm() {
 						placeholder="Pick Task Duration"
 						value={date}
 						onChange={setDate}
+						error={form.errors.start}
 					/>
 					<Select
 						withAsterisk

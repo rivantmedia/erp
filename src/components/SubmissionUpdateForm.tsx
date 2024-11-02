@@ -9,28 +9,23 @@ import {
 	Textarea
 } from "@mantine/core";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
-import { useEffect, useMemo, useState } from "react";
-
-const SubmissionStatus: {
-	[key in "pending" | "accepted" | "rejected"]: string;
-} = {
-	pending: "Pending Review",
-	accepted: "Accepted",
-	rejected: "Revision Required"
-};
+import { useMemo, useState } from "react";
 
 const SubmissionSelectStatus = [
 	{
 		label: "Pending Review",
-		value: "pending"
+		value: "pending",
+		color: "blue"
 	},
 	{
 		label: "Accepted",
-		value: "accepted"
+		value: "accepted",
+		color: "green"
 	},
 	{
 		label: "Revision Required",
-		value: "rejected"
+		value: "rejected",
+		color: "red"
 	}
 ];
 
@@ -59,21 +54,17 @@ function SubmissionUpdateForm({
 		() => new Date(submission.submissionDate).toLocaleDateString(),
 		[submission.submissionDate]
 	);
-	const submissionStatus = useMemo(
-		() =>
-			SubmissionStatus[
-				submission.status as keyof typeof SubmissionStatus
-			],
-		[submission.status]
-	);
 	const editPermission = submissionEditPermission && !submission.remarks;
+	const submissionStatus = SubmissionSelectStatus.find(
+		(s) => s.value === submission.status
+	);
 
 	const form = useForm({
 		mode: "controlled",
 		initialValues: {
-			id: "",
-			taskId: "",
-			status: "",
+			id: submission.id,
+			taskId: submission.taskId,
+			status: submission.status,
 			remarks: ""
 		},
 		validate: {
@@ -84,14 +75,6 @@ function SubmissionUpdateForm({
 			)
 		}
 	});
-
-	useEffect(() => {
-		form.setValues({
-			id: submission.id,
-			taskId: submission.taskId,
-			status: submission.status
-		});
-	}, []);
 
 	async function handleForm(values: SubmissionFormValues) {
 		if (form.isValid()) {
@@ -138,7 +121,12 @@ function SubmissionUpdateForm({
 							{...form.getInputProps("status")}
 						/>
 					) : (
-						<Badge variant="light">{submissionStatus}</Badge>
+						<Badge
+							variant="light"
+							color={submissionStatus?.color}
+						>
+							{submissionStatus?.label}
+						</Badge>
 					)}
 				</Group>
 				<Group>

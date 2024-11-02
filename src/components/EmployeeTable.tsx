@@ -26,6 +26,7 @@ export default function EmployeeTable() {
 	};
 	const { employees, isEmployeeLoading, removeEmployee } = useEmployees() as {
 		employees: {
+			id: string;
 			fname: string;
 			lname: string;
 			title: string;
@@ -78,9 +79,7 @@ export default function EmployeeTable() {
 							title="Edit Employee"
 							type="edit"
 						>
-							<UpdateEmployeeForm
-								employeeId={employee.employeeId}
-							/>
+							<UpdateEmployeeForm id={employee.id} />
 						</ModalContainer>
 					)}
 					{employeeDeletePermission && (
