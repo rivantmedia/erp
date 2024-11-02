@@ -147,7 +147,7 @@ function CreateTaskForm() {
 						mt="md"
 						data={employees.map((e) => ({
 							label: `${e.fname} ${e.lname}`,
-							value: e.id
+							value: e.id as string
 						}))}
 						key={form.key("assigneeId")}
 						{...form.getInputProps("assigneeId")}

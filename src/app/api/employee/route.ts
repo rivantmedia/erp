@@ -11,25 +11,73 @@ const POSTSchema = yup.object({
 	email: yup.string().email().required(),
 	department: yup.string().required(),
 	title: yup.string().required(),
-	employeeId: yup.number().required(),
+	employeeId: yup.number().required().positive().integer(),
 	contact: yup.number().required(),
 	sAdmin: yup.boolean().required(),
-	roleId: yup.string().required()
+	roleId: yup.string().required(),
+	type: yup.string().notRequired(),
+	status: yup.string().notRequired(),
+	location: yup.string().notRequired(),
+	appliedOn: yup.date().notRequired(),
+	cvFile: yup.string().notRequired(),
+	doj: yup.date().notRequired(),
+	contractEndDate: yup.date().notRequired(),
+	dateOfLeaving: yup.date().notRequired(),
+	contract: yup.string().notRequired(),
+	personalMail: yup.string().notRequired(),
+	personalPhone: yup.number().notRequired(),
+	whatsapp: yup.number().notRequired(),
+	photo: yup.string().notRequired(),
+	upiId: yup.string().notRequired(),
+	dob: yup.date().notRequired(),
+	aadhar: yup.number().notRequired(),
+	PAN: yup.string().notRequired(),
+	bank: yup.string().notRequired(),
+	bankingName: yup.string().notRequired(),
+	accountNo: yup.number().notRequired(),
+	ifsc: yup.string().notRequired(),
+	avgScore: yup.number().notRequired(),
+	retainChoice: yup.string().notRequired(),
+	extEligible: yup.boolean().notRequired()
 });
 
 const PATCHSchema = yup.object({
+	id: yup.string().required(),
 	fname: yup.string().required(),
 	lname: yup.string().required(),
 	email: yup.string().required(),
 	department: yup.string().required(),
 	title: yup.string().required(),
-	employeeId: yup.number().required(),
 	contact: yup.number().required(),
-	roleId: yup.string().required()
+	roleId: yup.string().required(),
+	type: yup.string().notRequired(),
+	status: yup.string().notRequired(),
+	location: yup.string().notRequired(),
+	appliedOn: yup.date().notRequired(),
+	cvFile: yup.string().notRequired(),
+	doj: yup.date().notRequired(),
+	contractEndDate: yup.date().notRequired(),
+	dateOfLeaving: yup.date().notRequired(),
+	contract: yup.string().notRequired(),
+	personalMail: yup.string().notRequired(),
+	personalPhone: yup.number().notRequired(),
+	whatsapp: yup.number().notRequired(),
+	photo: yup.string().notRequired(),
+	upiId: yup.string().notRequired(),
+	dob: yup.date().notRequired(),
+	aadhar: yup.number().notRequired(),
+	PAN: yup.string().notRequired(),
+	bank: yup.string().notRequired(),
+	bankingName: yup.string().notRequired(),
+	accountNo: yup.number().notRequired(),
+	ifsc: yup.string().notRequired(),
+	avgScore: yup.number().notRequired(),
+	retainChoice: yup.string().notRequired(),
+	extEligible: yup.boolean().notRequired()
 });
 
 const DELETESchema = yup.object({
-	employeeId: yup.number().required()
+	id: yup.string().required()
 });
 
 export async function POST(req: NextRequest) {
@@ -81,7 +129,7 @@ export async function PATCH(req: NextRequest) {
 		const data = await PATCHSchema.validate(await req.json());
 
 		const employee = await prisma.employee.update({
-			where: { employeeId: data.employeeId },
+			where: { id: data.id },
 			data: {
 				fname: data.fname,
 				lname: data.lname,
@@ -89,7 +137,31 @@ export async function PATCH(req: NextRequest) {
 				department: data.department,
 				title: data.title,
 				contact: data.contact,
-				roleId: data.roleId
+				roleId: data.roleId,
+				type: data.type,
+				status: data.status,
+				location: data.location,
+				appliedOn: data.appliedOn,
+				cvFile: data.cvFile,
+				doj: data.doj,
+				contractEndDate: data.contractEndDate,
+				dateOfLeaving: data.dateOfLeaving,
+				contract: data.contract,
+				personalMail: data.personalMail,
+				personalPhone: data.personalPhone,
+				whatsapp: data.whatsapp,
+				photo: data.photo,
+				upiId: data.upiId,
+				dob: data.dob,
+				aadhar: data.aadhar,
+				PAN: data.PAN,
+				bank: data.bank,
+				bankingName: data.bankingName,
+				accountNo: data.accountNo,
+				ifsc: data.ifsc,
+				avgScore: data.avgScore,
+				retainChoice: data.retainChoice,
+				extEligible: data.extEligible
 			}
 		});
 		return Response.json(employee, { status: 200 });
@@ -139,7 +211,7 @@ export async function DELETE(req: NextRequest) {
 	try {
 		const data = await DELETESchema.validate(await req.json());
 		const employee = await prisma.employee.delete({
-			where: { employeeId: data.employeeId }
+			where: { id: data.id }
 		});
 		return Response.json(employee, { status: 200 });
 	} catch (error) {

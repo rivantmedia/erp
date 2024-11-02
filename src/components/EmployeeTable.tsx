@@ -1,22 +1,19 @@
 "use client";
 
-import { useEmployees } from "@/context/EmployeesContext";
+import { Employee, useEmployees } from "@/context/EmployeesContext";
 import {
 	Badge,
 	Table,
 	Group,
 	Text,
-	ActionIcon,
 	Anchor,
-	rem,
 	Center,
 	Loader
 } from "@mantine/core";
-import { IconTrash } from "@tabler/icons-react";
-import ModalContainer from "./ModalContainer";
-import UpdateEmployeeForm from "@/components/UpdateEmployeeForm";
+import DrawerContainer from "./DrawerContainer";
 import { useRoles } from "@/context/RolesContext";
 import { PermissionsResolvable } from "@/lib/UserPermissions";
+import EmployeeDetail from "./EmployeeDetail";
 
 export default function EmployeeTable() {
 	const { accessCheckError } = useRoles() as {
@@ -24,23 +21,17 @@ export default function EmployeeTable() {
 			permissionRequired: PermissionsResolvable
 		) => boolean;
 	};
-	const { employees, isEmployeeLoading, removeEmployee } = useEmployees() as {
-		employees: {
-			id: string;
-			fname: string;
-			lname: string;
-			title: string;
-			email: string;
-			contact: number;
-			employeeId: number;
-			sAdmin: boolean;
-		}[];
+	const { employees, isEmployeeLoading } = useEmployees() as {
+		employees: Employee[];
 		isEmployeeLoading: boolean;
-		removeEmployee: (employeeId: number) => void;
 	};
 
-	const employeeEditPermission = accessCheckError(["EMPLOYEES_UPDATE"]);
-	const employeeDeletePermission = accessCheckError(["EMPLOYEES_DELETE"]);
+	const employeeViewDetailsPermission = accessCheckError([
+		"EMPLOYEES_READ_BASIC_INFO"
+	]);
+	const employeeViewSensitiveDetailsPermission = accessCheckError([
+		"EMPLOYEES_READ_SENSITIVE_INFO"
+	]);
 
 	const rows = employees.map((employee) => (
 		<Table.Tr key={employee.employeeId}>
@@ -60,7 +51,7 @@ export default function EmployeeTable() {
 			</Table.Td>
 			<Table.Td>
 				<Anchor
-					component="button"
+					href={`mailto:${employee.email}`}
 					size="sm"
 				>
 					{employee.email}
@@ -74,25 +65,11 @@ export default function EmployeeTable() {
 					gap={0}
 					justify="flex-end"
 				>
-					{employeeEditPermission && (
-						<ModalContainer
-							title="Edit Employee"
-							type="edit"
-						>
-							<UpdateEmployeeForm id={employee.id} />
-						</ModalContainer>
-					)}
-					{employeeDeletePermission && (
-						<ActionIcon
-							variant="subtle"
-							color="red"
-							onClick={() => removeEmployee(employee.employeeId)}
-						>
-							<IconTrash
-								style={{ width: rem(16), height: rem(16) }}
-								stroke={1.5}
-							/>
-						</ActionIcon>
+					{(employeeViewDetailsPermission ||
+						employeeViewSensitiveDetailsPermission) && (
+						<DrawerContainer title="View Details">
+							<EmployeeDetail employee={employee} />
+						</DrawerContainer>
 					)}
 				</Group>
 			</Table.Td>

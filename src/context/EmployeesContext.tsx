@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useReducer } from "react";
 const EmployeesContext = createContext({});
 
 export type Employee = {
-	id: string;
+	id?: string;
 	fname: string;
 	lname: string;
 	title: string;
@@ -15,6 +15,30 @@ export type Employee = {
 	employeeId: number;
 	sAdmin: boolean;
 	roleId: string;
+	type?: string;
+	status?: string;
+	location?: string;
+	appliedOn?: Date;
+	cvFile?: string;
+	doj?: Date;
+	contractEndDate?: Date;
+	dateOfLeaving?: Date;
+	contract?: string;
+	personalMail?: string;
+	personalPhone?: number;
+	whatsapp?: number;
+	photo?: string;
+	upiId?: string;
+	dob?: Date;
+	aadhar?: number;
+	PAN?: string;
+	bank?: string;
+	bankingName?: string;
+	accountNo?: number;
+	ifsc?: string;
+	avgScore?: number;
+	retainChoice?: string;
+	extEligible?: boolean;
 };
 
 const initialState = {
@@ -30,7 +54,7 @@ type Action =
 	| { type: "employees/loaded"; payload: Employee[] }
 	| { type: "rejected"; payload: string }
 	| { type: "employee/added"; payload: Employee }
-	| { type: "employee/removed"; payload: number }
+	| { type: "employee/removed"; payload: string }
 	| { type: "employee/update"; payload: Employee };
 
 function reducer(state: typeof initialState, action: Action) {
@@ -70,7 +94,7 @@ function reducer(state: typeof initialState, action: Action) {
 			return {
 				...state,
 				employees: state.employees.filter(
-					(e) => e.employeeId !== action.payload
+					(e) => e.id !== action.payload
 				),
 				isEmployeeLoading: false
 			};
@@ -111,7 +135,6 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 	}, []);
 
 	async function addEmployee(newEmployee: Employee) {
-		newEmployee = { ...newEmployee, sAdmin: false };
 		dispatch({ type: "loadingChange" });
 		try {
 			const res = await fetch("/api/employee", {
@@ -153,12 +176,12 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 		}
 	}
 
-	async function removeEmployee(employeeId: number) {
+	async function removeEmployee(id: string) {
 		dispatch({ type: "loadingEmployee" });
 		try {
 			const res = await fetch("/api/employee", {
 				method: "DELETE",
-				body: JSON.stringify({ employeeId }),
+				body: JSON.stringify({ id }),
 				headers: {
 					"content-type": "application/json",
 					"Accept": "application/json"
@@ -166,7 +189,7 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const data = await res.json();
-			dispatch({ type: "employee/removed", payload: employeeId });
+			dispatch({ type: "employee/removed", payload: id });
 		} catch {
 			dispatch({
 				type: "rejected",

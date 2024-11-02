@@ -1,4 +1,4 @@
-import { useEmployees } from "@/context/EmployeesContext";
+import { Employee, useEmployees } from "@/context/EmployeesContext";
 import { Role, useRoles } from "@/context/RolesContext";
 import { Notification, Select } from "@mantine/core";
 import {
@@ -9,6 +9,7 @@ import {
 	NumberInput,
 	TextInput
 } from "@mantine/core";
+import { DatePickerInput } from "@mantine/dates";
 import {
 	hasLength,
 	isEmail,
@@ -18,31 +19,20 @@ import {
 } from "@mantine/form";
 import { useState } from "react";
 
-interface EmployeeFormValues {
-	fname: string;
-	lname: string;
-	email: string;
-	employeeId: number;
-	department: string;
-	title: string;
-	contact: number;
-	sAdmin?: boolean;
-	roleId: string;
-}
-
 function CreateEmployeeForm() {
 	const [notification, setNotification] = useState(false);
 	const { employees, isChangeLoading, error, addEmployee } =
 		useEmployees() as {
-			employees: EmployeeFormValues[];
+			employees: Employee[];
 			isChangeLoading: boolean;
 			error: string;
-			addEmployee: (employee: EmployeeFormValues) => void;
+			addEmployee: (employee: Employee) => void;
 		};
 	const { roles } = useRoles() as { roles: Role[] };
 	const form = useForm({
 		mode: "uncontrolled",
 		initialValues: {
+			sAdmin: false,
 			fname: "",
 			lname: "",
 			email: "",
@@ -50,7 +40,31 @@ function CreateEmployeeForm() {
 			department: "",
 			title: "",
 			contact: 0,
-			roleId: ""
+			roleId: "",
+			type: "",
+			status: "",
+			location: "",
+			appliedOn: undefined,
+			cvFile: "",
+			doj: undefined,
+			contractEndDate: undefined,
+			dateOfLeaving: undefined,
+			contract: "",
+			personalMail: "",
+			personalPhone: undefined,
+			whatsapp: undefined,
+			photo: "",
+			upiId: "",
+			dob: undefined,
+			aadhar: undefined,
+			PAN: "",
+			bank: "",
+			bankingName: "",
+			accountNo: undefined,
+			ifsc: "",
+			avgScore: undefined,
+			retainChoice: "",
+			extEligible: undefined
 		},
 		validate: {
 			fname: hasLength(
@@ -89,7 +103,7 @@ function CreateEmployeeForm() {
 		}
 	}
 
-	async function handleForm(values: EmployeeFormValues) {
+	async function handleForm(values: Employee) {
 		if (form.isValid()) {
 			await addEmployee(values);
 			if (!error) {
@@ -160,7 +174,7 @@ function CreateEmployeeForm() {
 						withAsterisk
 						label="Employee Role"
 						mt="md"
-						key={form.key("role")}
+						key={form.key("title")}
 						{...form.getInputProps("title")}
 					/>
 					<NumberInput
@@ -180,6 +194,154 @@ function CreateEmployeeForm() {
 						}))}
 						key={form.key("roleId")}
 						{...form.getInputProps("roleId")}
+					/>
+					<TextInput
+						label="Type"
+						mt="md"
+						key={form.key("type")}
+						{...form.getInputProps("type")}
+					/>
+					<TextInput
+						label="Status"
+						mt="md"
+						key={form.key("status")}
+						{...form.getInputProps("status")}
+					/>
+					<TextInput
+						label="Location"
+						mt="md"
+						key={form.key("location")}
+						{...form.getInputProps("location")}
+					/>
+					<DatePickerInput
+						label="Applied On"
+						mt="md"
+						key={form.key("appliedOn")}
+						{...form.getInputProps("appliedOn")}
+					/>
+					<TextInput
+						label="CV File"
+						mt="md"
+						key={form.key("cvFile")}
+						{...form.getInputProps("cvFile")}
+					/>
+					<DatePickerInput
+						label="Date of Joining"
+						mt="md"
+						key={form.key("doj")}
+						{...form.getInputProps("doj")}
+					/>
+					<DatePickerInput
+						label="Internship/Contract End Date"
+						mt="md"
+						key={form.key("contractEndDate")}
+						{...form.getInputProps("contractEndDate")}
+					/>
+					<DatePickerInput
+						label="Resignation/Date of Leaving"
+						mt="md"
+						key={form.key("dateOfLeaving")}
+						{...form.getInputProps("dateOfLeaving")}
+					/>
+					<TextInput
+						label="Contract"
+						mt="md"
+						key={form.key("contract")}
+						{...form.getInputProps("contract")}
+					/>
+					<TextInput
+						label="Personal Mail"
+						mt="md"
+						key={form.key("personalMail")}
+						{...form.getInputProps("personalMail")}
+					/>
+					<NumberInput
+						label="Personal Contact Number"
+						mt="md"
+						key={form.key("personalPhone")}
+						{...form.getInputProps("personalPhone")}
+					/>
+					<NumberInput
+						label="Whatsapp Number"
+						mt="md"
+						key={form.key("whatsapp")}
+						{...form.getInputProps("whatsapp")}
+					/>
+					<TextInput
+						label="Passport Size Photo"
+						mt="md"
+						key={form.key("photo")}
+						{...form.getInputProps("photo")}
+					/>
+					<TextInput
+						label="UPI ID"
+						mt="md"
+						key={form.key("upiId")}
+						{...form.getInputProps("upiId")}
+					/>
+					<DatePickerInput
+						label="Date of Birth"
+						mt="md"
+						key={form.key("dob")}
+						{...form.getInputProps("dob")}
+					/>
+					<NumberInput
+						label="Aadhar Number"
+						mt="md"
+						key={form.key("aadhar")}
+						{...form.getInputProps("aadhar")}
+					/>
+					<TextInput
+						label="PAN Number"
+						mt="md"
+						key={form.key("PAN")}
+						{...form.getInputProps("PAN")}
+					/>
+					<TextInput
+						label="Bank"
+						mt="md"
+						key={form.key("bank")}
+						{...form.getInputProps("bank")}
+					/>
+					<TextInput
+						label="Banking Name"
+						mt="md"
+						key={form.key("bankingName")}
+						{...form.getInputProps("bankingName")}
+					/>
+					<NumberInput
+						label="Account Number"
+						mt="md"
+						key={form.key("accountNo")}
+						{...form.getInputProps("accountNo")}
+					/>
+					<TextInput
+						label="IFSC Code"
+						mt="md"
+						key={form.key("ifsc")}
+						{...form.getInputProps("ifsc")}
+					/>
+					<NumberInput
+						label="Average Performance Score"
+						mt="md"
+						key={form.key("avgScore")}
+						{...form.getInputProps("avgScore")}
+					/>
+					<TextInput
+						label="Retain Choice"
+						mt="md"
+						key={form.key("retainChoice")}
+						{...form.getInputProps("retainChoice")}
+					/>
+					<Select
+						label="Is eligible for extension"
+						mt="md"
+						data={[
+							{ label: "Eligible", value: "true" },
+							{ label: "Non Eligible", value: "false" }
+						]}
+						key={form.key("extEligible")}
+						{...form.getInputProps("extEligible")}
 					/>
 					<Group
 						justify="center"

@@ -8,19 +8,43 @@ datasource db {
 }
 
 model Employee {
-  id            String  @id @default(auto()) @map("_id") @db.ObjectId
-  fname         String
-  lname         String
-  email         String  @unique
-  employeeId    Int     @unique
-  department    String
-  contact       Int
-  title         String
-  role          Role?   @relation(fields: [roleId], references: [id])
-  sAdmin        Boolean
-  roleId        String? @db.ObjectId
-  assignedTasks Task[]  @relation("AssignedTasks")
-  createdTasks  Task[]  @relation("CreatedTasks")
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId      Int       @unique
+  fname           String
+  lname           String
+  email           String    @unique
+  department      String
+  contact         Int
+  title           String
+  role            Role?     @relation(fields: [roleId], references: [id])
+  sAdmin          Boolean
+  roleId          String    @db.ObjectId
+  type            String?
+  status          String?
+  location        String?
+  appliedOn       DateTime?
+  cvFile          String?
+  doj             DateTime?
+  contractEndDate DateTime?
+  dateOfLeaving   DateTime?
+  contract        String?
+  personalMail    String?
+  personalPhone   Int?
+  whatsapp        Int?
+  photo           String?
+  upiId           String?
+  dob             DateTime?
+  aadhar          Int?
+  PAN             String?
+  bank            String?
+  bankingName     String?
+  accountNo       Int?
+  ifsc            String?
+  avgScore        Int?
+  retainChoice    String?
+  extEligible     Boolean?
+  assignedTasks   Task[]    @relation("AssignedTasks")
+  createdTasks    Task[]    @relation("CreatedTasks")
 }
 
 model Asset {
