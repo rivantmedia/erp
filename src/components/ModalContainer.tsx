@@ -5,11 +5,13 @@ import { IconPencil } from "@tabler/icons-react";
 function ModalContainer({
 	children,
 	title,
-	type
+	type,
+	size
 }: {
 	children: React.ReactNode;
 	title: string;
 	type?: string;
+	size?: string;
 }) {
 	const [opened, { open, close }] = useDisclosure(false);
 
@@ -29,7 +31,7 @@ function ModalContainer({
 				<ActionIcon
 					onClick={open}
 					variant="subtle"
-					size="xl"
+					size={size || "xl"}
 					color="gray"
 				>
 					<IconPencil

@@ -29,8 +29,13 @@ export default function Main() {
 			{employeeReadPermission ? (
 				<EmployeeTable />
 			) : (
-				<Text ta="center">
-					You do not have permission to view employees.
+				<Text
+					size="xl"
+					fw={700}
+					ta="center"
+					color="red"
+				>
+					Access Denied
 				</Text>
 			)}
 		</div>

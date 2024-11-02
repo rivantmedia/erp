@@ -1,24 +1,42 @@
 "use client";
 
 import ModalContainer from "@/components/ModalContainer";
-import { useSession } from "next-auth/react";
-import { Group } from "@mantine/core";
+import { Group, Text } from "@mantine/core";
 import RolesTable from "@/components/RolesTable";
 import CreateRoleForm from "@/components/CreateRoleForm";
+import { useRoles } from "@/context/RolesContext";
+import { PermissionsResolvable } from "@/lib/UserPermissions";
 
 export default function Main() {
-	const { data: session } = useSession();
+	const { accessCheckError } = useRoles() as {
+		accessCheckError: (
+			permissionRequired: PermissionsResolvable
+		) => boolean;
+	};
+	const createRolePermission = accessCheckError(["ROLES_CREATE"]);
+	const readRolePermission = accessCheckError(["ROLES_READ"]);
 
 	return (
 		<div>
-			{session?.user.sAdmin && (
+			{createRolePermission && (
 				<Group justify="flex-end">
 					<ModalContainer title="Add Role">
 						<CreateRoleForm />
 					</ModalContainer>
 				</Group>
 			)}
-			<RolesTable />
+			{readRolePermission ? (
+				<RolesTable />
+			) : (
+				<Text
+					size="xl"
+					fw={700}
+					ta="center"
+					color="red"
+				>
+					Access Denied
+				</Text>
+			)}
 		</div>
 	);
 }

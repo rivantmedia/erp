@@ -103,6 +103,16 @@ export default function Main() {
 					/>
 				</>
 			)}
+			{!taskViewAllPermission && !taskViewPermission && (
+				<Text
+					size="xl"
+					fw={700}
+					ta="center"
+					color="red"
+				>
+					Access Denied
+				</Text>
+			)}
 		</div>
 	);
 }

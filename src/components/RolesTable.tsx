@@ -14,15 +14,22 @@ import {
 import { IconTrash } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import ModalContainer from "./ModalContainer";
-import UserPermissions from "@/lib/UserPermissions";
+import UserPermissions, { PermissionsResolvable } from "@/lib/UserPermissions";
+import UpdateRoleForm from "./UpdateRoleForm";
 
 export default function RolesTable() {
 	const { data: session } = useSession();
-	const { roles, removeRole, isLoading } = useRoles() as {
-		roles: Role[];
-		isLoading: boolean;
-		removeRole: (roleId: string) => void;
-	};
+	const { roles, removeRole, isRoleLoading, accessCheckError } =
+		useRoles() as {
+			roles: Role[];
+			isRoleLoading: boolean;
+			removeRole: (roleId: string) => void;
+			accessCheckError: (
+				permissionRequired: PermissionsResolvable
+			) => boolean;
+		};
+	const editRolePermission = accessCheckError(["ROLES_UPDATE"]);
+	const deleteRolePermission = accessCheckError(["ROLES_DELETE"]);
 
 	const rows = roles.map((role) => (
 		<Table.Tr key={role.id}>
@@ -58,22 +65,27 @@ export default function RolesTable() {
 						gap={0}
 						justify="flex-end"
 					>
-						<ModalContainer
-							title="Edit Employee"
-							type="edit"
-						>
-							HAAA
-						</ModalContainer>
-						<ActionIcon
-							variant="subtle"
-							color="red"
-							onClick={() => removeRole(role.id)}
-						>
-							<IconTrash
-								style={{ width: rem(16), height: rem(16) }}
-								stroke={1.5}
-							/>
-						</ActionIcon>
+						{editRolePermission && (
+							<ModalContainer
+								title="Edit Role"
+								type="edit"
+								size="md"
+							>
+								<UpdateRoleForm role={role} />
+							</ModalContainer>
+						)}
+						{deleteRolePermission && (
+							<ActionIcon
+								variant="subtle"
+								color="red"
+								onClick={() => removeRole(role.id)}
+							>
+								<IconTrash
+									style={{ width: rem(16), height: rem(16) }}
+									stroke={1.5}
+								/>
+							</ActionIcon>
+						)}
 					</Group>
 				)}
 			</Table.Td>
@@ -82,7 +94,7 @@ export default function RolesTable() {
 
 	return (
 		<>
-			{isLoading ? (
+			{isRoleLoading ? (
 				<Center h="100%">
 					<Loader />
 				</Center>

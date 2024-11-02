@@ -11,6 +11,13 @@ const POSTSchema = yup.object({
 	index: yup.number().required()
 });
 
+const PATCHSchema = yup.object({
+	id: yup.string().required(),
+	name: yup.string().uppercase().required(),
+	permissions: yup.number().required(),
+	index: yup.number().required()
+});
+
 const DELETESchema = yup.object({
 	roleId: yup.string().required()
 });
@@ -69,6 +76,37 @@ export async function GET() {
 		console.log("Failed to get roles", error);
 		return Response.json(
 			{ message: "Failed to get roles" },
+			{ status: 500 }
+		);
+	}
+}
+
+export async function PATCH(req: NextRequest) {
+	const accessError = await accessCheckError(["ROLES_READ", "ROLES_UPDATE"]);
+
+	if (accessError) {
+		return Response.json(
+			{ message: accessError.message },
+			{ status: accessError.status }
+		);
+	}
+
+	try {
+		const data = await PATCHSchema.validate(await req.json());
+
+		const role = await prisma.role.update({
+			where: { id: data.id },
+			data: {
+				name: data.name,
+				index: data.index,
+				permissions: data.permissions
+			}
+		});
+		return Response.json(role, { status: 200 });
+	} catch (error) {
+		console.log("Failed to update role", error);
+		return Response.json(
+			{ message: "Failed to update role" },
 			{ status: 500 }
 		);
 	}

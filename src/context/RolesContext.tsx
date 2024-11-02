@@ -17,41 +17,61 @@ export type Role = {
 
 const initialState = {
 	roles: [] as Role[],
-	isLoading: false,
+	isChangeLoading: false,
+	isRoleLoading: false,
 	error: ""
 };
 
 type Action =
-	| { type: "loading" }
+	| { type: "loadingChange" }
+	| { type: "loadingRole" }
 	| { type: "roles/loaded"; payload: Role[] }
 	| { type: "rejected"; payload: string }
 	| { type: "role/added"; payload: Role }
-	| { type: "role/removed"; payload: string };
+	| { type: "role/removed"; payload: string }
+	| { type: "role/edit"; payload: Role };
 
 function reducer(state: typeof initialState, action: Action) {
 	switch (action.type) {
-		case "loading":
-			return { ...state, isLoading: true };
+		case "loadingChange":
+			return { ...state, isChangeLoading: true };
+
+		case "loadingRole":
+			return { ...state, isRoleLoading: true };
 
 		case "roles/loaded":
-			return { ...state, roles: action.payload, isLoading: false };
+			return { ...state, roles: action.payload, isRoleLoading: false };
 
 		case "role/added":
 			return {
 				...state,
 				roles: [...state.roles, action.payload],
-				isLoading: false
+				isChangeLoading: false
+			};
+
+		case "role/edit":
+			return {
+				...state,
+				roles: state.roles.map((r) =>
+					r.id === action.payload.id ? action.payload : r
+				),
+				isChangeLoading: false
 			};
 
 		case "role/removed":
 			return {
 				...state,
 				roles: state.roles.filter((r) => r.id !== action.payload),
-				isLoading: false
+				isRoleLoading: false
 			};
 
 		case "rejected":
-			return { ...state, error: action.payload, isLoading: false };
+			return {
+				...state,
+				error: action.payload,
+				isChangeLoading: false,
+				isRoleLoading: false
+			};
 
 		default:
 			throw new Error("Invalid action type");
@@ -59,15 +79,13 @@ function reducer(state: typeof initialState, action: Action) {
 }
 
 function RolesProvider({ children }: { children: React.ReactNode }) {
-	const [{ roles, isLoading, error }, dispatch] = useReducer(
-		reducer,
-		initialState
-	);
+	const [{ roles, isChangeLoading, isRoleLoading, error }, dispatch] =
+		useReducer(reducer, initialState);
 	const { data: session } = useSession();
 
 	useEffect(() => {
 		async function fetchRoles() {
-			dispatch({ type: "loading" });
+			dispatch({ type: "loadingRole" });
 			try {
 				const res = await fetch("/api/roles");
 				if (res.status !== 200) throw new Error("Failed to load roles");
@@ -86,7 +104,7 @@ function RolesProvider({ children }: { children: React.ReactNode }) {
 
 	async function addRole(newRole: object) {
 		newRole = { ...newRole };
-		dispatch({ type: "loading" });
+		dispatch({ type: "loadingChange" });
 		try {
 			const res = await fetch("/api/roles", {
 				method: "POST",
@@ -106,8 +124,29 @@ function RolesProvider({ children }: { children: React.ReactNode }) {
 		}
 	}
 
+	async function editRole(roleData: Role) {
+		dispatch({ type: "loadingChange" });
+		try {
+			const res = await fetch("/api/roles", {
+				method: "PATCH",
+				body: JSON.stringify(roleData),
+				headers: {
+					"content-type": "application/json",
+					"Accept": "application/json"
+				}
+			});
+			const data = await res.json();
+			dispatch({ type: "role/edit", payload: data });
+		} catch {
+			dispatch({
+				type: "rejected",
+				payload: "There was an error adding the employee"
+			});
+		}
+	}
+
 	async function removeRole(roleId: string) {
-		dispatch({ type: "loading" });
+		dispatch({ type: "loadingRole" });
 		try {
 			const res = await fetch("/api/roles", {
 				method: "DELETE",
@@ -154,11 +193,13 @@ function RolesProvider({ children }: { children: React.ReactNode }) {
 		<RolesContext.Provider
 			value={{
 				roles,
-				isLoading,
+				isChangeLoading,
+				isRoleLoading,
 				error,
 				addRole,
 				removeRole,
-				accessCheckError
+				accessCheckError,
+				editRole
 			}}
 		>
 			{children}
