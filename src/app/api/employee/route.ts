@@ -116,7 +116,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-	const accessError = await accessCheckError(["EMPLOYEES_UPDATE"]);
+	const accessError = await accessCheckError([
+		"EMPLOYEES_UPDATE",
+		"EMPLOYEES_READ_SENSITIVE_INFO"
+	]);
 
 	if (accessError) {
 		return Response.json(
