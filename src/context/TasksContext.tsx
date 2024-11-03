@@ -266,7 +266,7 @@ function TasksProvider({ children }: { children: React.ReactNode }) {
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const data = await res.json();
-			dispatch({ type: "task/removed", payload: taskId });
+			dispatch({ type: "task/removed", payload: data.id });
 		} catch {
 			dispatch({
 				type: "rejected",

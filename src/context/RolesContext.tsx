@@ -164,7 +164,7 @@ function RolesProvider({ children }: { children: React.ReactNode }) {
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const data = await res.json();
-			dispatch({ type: "role/removed", payload: roleId });
+			dispatch({ type: "role/removed", payload: data.id });
 		} catch {
 			dispatch({
 				type: "rejected",

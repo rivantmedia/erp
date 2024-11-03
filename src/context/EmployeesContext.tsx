@@ -196,7 +196,7 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 			});
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const data = await res.json();
-			dispatch({ type: "employee/removed", payload: id });
+			dispatch({ type: "employee/removed", payload: data.id });
 		} catch {
 			dispatch({
 				type: "rejected",

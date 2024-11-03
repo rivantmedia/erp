@@ -80,7 +80,7 @@ model Submission {
   status         String
   remarks        String?
   taskId         String   @db.ObjectId
-  task           Task     @relation(fields: [taskId], references: [id]) // Many submissions relate to one task
+  task           Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
 }
 
 model Document {
