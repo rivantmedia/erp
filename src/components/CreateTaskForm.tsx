@@ -16,15 +16,20 @@ interface TaskFormValues {
 }
 
 function CreateTaskForm() {
-	const [notification, setNotification] = useState<string | null>(null);
+	const [notification, setNotification] = useState<{
+		message: string;
+		error: boolean;
+	} | null>(null);
 	const { data: session } = useSession();
 	const [date, setDate] = useState<[Date | null, Date | null]>([null, null]);
 	const { employees } = useEmployees() as {
 		employees: Employee[];
 	};
-	const { addTask, error, isChangeLoading } = useTasks() as {
-		addTask: (newTask: Task) => void;
-		error: string;
+	const { addTask, isChangeLoading } = useTasks() as {
+		addTask: (newTask: Task) => {
+			message: string;
+			error: boolean;
+		};
 		isChangeLoading: boolean;
 	};
 
@@ -75,12 +80,11 @@ function CreateTaskForm() {
 			creatorId: session?.user.id as string
 		};
 		if (form.isValid()) {
-			await addTask(newTask);
-			if (!error) {
-				setNotification("Created");
+			const res = await addTask(newTask);
+			if (!res.error) {
 				form.reset();
-				setDate([null, null]);
 			}
+			setNotification(res);
 		}
 	}
 
@@ -88,11 +92,11 @@ function CreateTaskForm() {
 		<>
 			{notification && (
 				<Notification
-					title="Task Created"
-					color="green"
+					title="Notification"
+					color={notification.error ? "red" : "green"}
 					onClose={() => setNotification(null)}
 				>
-					Task has been created successfully
+					{notification.message}
 				</Notification>
 			)}
 			<Box pos="relative">

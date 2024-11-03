@@ -114,13 +114,16 @@ function RolesProvider({ children }: { children: React.ReactNode }) {
 					"Accept": "application/json"
 				}
 			});
+			if (res.status !== 201) throw new Error("Failed to add role");
 			const data = await res.json();
 			dispatch({ type: "role/added", payload: data });
+			return { message: "Role added successfully", error: false };
 		} catch {
 			dispatch({
 				type: "rejected",
 				payload: "There was an error adding the role"
 			});
+			return { message: "Failed to add role", error: true };
 		}
 	}
 
@@ -135,13 +138,16 @@ function RolesProvider({ children }: { children: React.ReactNode }) {
 					"Accept": "application/json"
 				}
 			});
+			if (res.status !== 200) throw new Error("Failed to update role");
 			const data = await res.json();
 			dispatch({ type: "role/edit", payload: data });
+			return { message: "Role updated successfully", error: false };
 		} catch {
 			dispatch({
 				type: "rejected",
-				payload: "There was an error adding the employee"
+				payload: "There was an error updating the role"
 			});
+			return { message: "Failed to update role", error: true };
 		}
 	}
 

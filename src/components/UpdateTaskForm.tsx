@@ -17,15 +17,20 @@ interface TaskFormValues {
 }
 
 function UpdateTaskForm({ id }: { id: string }) {
-	const [notification, setNotification] = useState<string | null>(null);
+	const [notification, setNotification] = useState<{
+		message: string;
+		error: boolean;
+	} | null>(null);
 	const [date, setDate] = useState<[Date | null, Date | null]>([null, null]);
 	const { employees } = useEmployees() as {
 		employees: Employee[];
 	};
-	const { tasks, updateTask, error, isChangeLoading } = useTasks() as {
+	const { tasks, updateTask, isChangeLoading } = useTasks() as {
 		tasks: Task[];
-		updateTask: (newTask: Task) => void;
-		error: string;
+		updateTask: (newTask: Task) => {
+			message: string;
+			error: boolean;
+		};
 		isChangeLoading: boolean;
 	};
 	const task = tasks.find((t) => t.id === id);
@@ -81,11 +86,8 @@ function UpdateTaskForm({ id }: { id: string }) {
 		}
 		const taskData = { ...values, id, assignedEmail, start, end };
 		if (form.isValid()) {
-			console.log(values);
-			await updateTask(taskData);
-			if (!error) {
-				setNotification("Updated");
-			}
+			const res = await updateTask(taskData);
+			setNotification(res);
 		}
 	}
 
@@ -93,11 +95,11 @@ function UpdateTaskForm({ id }: { id: string }) {
 		<>
 			{notification && (
 				<Notification
-					title="Task Created"
-					color="green"
+					title="Notification"
+					color={notification.error ? "red" : "green"}
 					onClose={() => setNotification(null)}
 				>
-					Task has been created successfully
+					{notification.message}
 				</Notification>
 			)}
 			<Box pos="relative">
@@ -150,10 +152,12 @@ function UpdateTaskForm({ id }: { id: string }) {
 						withAsterisk
 						label="Assign Task To:"
 						mt="md"
-						data={employees.map((e) => ({
-							label: `${e.fname} ${e.lname}`,
-							value: e.id
-						}))}
+						data={employees
+							.filter((e) => e.id !== undefined)
+							.map((e) => ({
+								label: `${e.fname} ${e.lname}`,
+								value: e.id as string
+							}))}
 						key={form.key("assigneeId")}
 						{...form.getInputProps("assigneeId")}
 					/>
@@ -162,10 +166,12 @@ function UpdateTaskForm({ id }: { id: string }) {
 						label="Task Assigned By:"
 						mt="md"
 						disabled
-						data={employees.map((e) => ({
-							label: `${e.fname} ${e.lname}`,
-							value: e.id
-						}))}
+						data={employees
+							.filter((e) => e.id !== undefined)
+							.map((e) => ({
+								label: `${e.fname} ${e.lname}`,
+								value: e.id as string
+							}))}
 						key={form.key("creatorId")}
 						{...form.getInputProps("creatorId")}
 					/>

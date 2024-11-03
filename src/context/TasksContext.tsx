@@ -163,13 +163,16 @@ function TasksProvider({ children }: { children: React.ReactNode }) {
 					"Accept": "application/json"
 				}
 			});
+			if (res.status !== 201) throw new Error("Failed to create task");
 			const data = await res.json();
 			dispatch({ type: "task/added", payload: data });
+			return { message: "Task created successfully", error: false };
 		} catch {
 			dispatch({
 				type: "rejected",
 				payload: "There was an error adding the task"
 			});
+			return { message: "Failed to create task", error: true };
 		}
 	}
 
@@ -187,13 +190,17 @@ function TasksProvider({ children }: { children: React.ReactNode }) {
 					"Accept": "application/json"
 				}
 			});
+			if (res.status !== 201)
+				throw new Error("Failed to create submission");
 			const data = await res.json();
 			dispatch({ type: "submission/added", payload: data });
+			return { message: "Submission created successfully", error: false };
 		} catch {
 			dispatch({
 				type: "rejected",
 				payload: "There was an error adding the submission"
 			});
+			return { message: "Failed to create submission", error: true };
 		}
 	}
 
@@ -208,13 +215,16 @@ function TasksProvider({ children }: { children: React.ReactNode }) {
 					"Accept": "application/json"
 				}
 			});
+			if (res.status !== 200) throw new Error("Failed to update task");
 			const data = await res.json();
 			dispatch({ type: "task/update", payload: data });
+			return { message: "Task updated successfully", error: false };
 		} catch {
 			dispatch({
 				type: "rejected",
 				payload: "There was an error adding the task"
 			});
+			return { message: "Failed to update task", error: true };
 		}
 	}
 

@@ -16,7 +16,7 @@ model Employee {
   department      String
   contact         Int
   title           String
-  role            Role?     @relation(fields: [roleId], references: [id])
+  role            Role     @relation(fields: [roleId], references: [id])
   sAdmin          Boolean
   roleId          String    @db.ObjectId
   type            String?

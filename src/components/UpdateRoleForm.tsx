@@ -20,11 +20,16 @@ interface RoleFormValues {
 }
 
 function UpdateRoleForm({ role }: { role: Role }) {
-	const [notification, setNotification] = useState(false);
-	const { isChangeLoading, error, editRole } = useRoles() as {
+	const [notification, setNotification] = useState<{
+		message: string;
+		error: boolean;
+	} | null>(null);
+	const { isChangeLoading, editRole } = useRoles() as {
 		isChangeLoading: boolean;
-		error: string;
-		editRole: (values: RoleFormValues) => Promise<void>;
+		editRole: (values: RoleFormValues) => {
+			message: string;
+			error: boolean;
+		};
 	};
 	const form = useForm({
 		mode: "uncontrolled",
@@ -52,10 +57,8 @@ function UpdateRoleForm({ role }: { role: Role }) {
 
 	async function handleForm(values: RoleFormValues) {
 		if (form.isValid()) {
-			await editRole(values);
-			if (!error) {
-				setNotification(true);
-			}
+			const res = await editRole(values);
+			setNotification(res);
 		}
 	}
 
@@ -63,11 +66,11 @@ function UpdateRoleForm({ role }: { role: Role }) {
 		<>
 			{notification && (
 				<Notification
-					title="Role Added"
-					color="green"
-					onClose={() => setNotification(false)}
+					title="Notification"
+					color={notification.error ? "red" : "green"}
+					onClose={() => setNotification(null)}
 				>
-					Role has been added successfully
+					{notification.message}
 				</Notification>
 			)}
 			<Box pos="relative">

@@ -19,12 +19,17 @@ interface RoleFormValues {
 }
 
 function CreateRoleForm() {
-	const [notification, setNotification] = useState(false);
-	const { roles, isLoading, error, addRole } = useRoles() as {
+	const [notification, setNotification] = useState<{
+		message: string;
+		error: boolean;
+	} | null>(null);
+	const { roles, isLoading, addRole } = useRoles() as {
 		roles: Role[];
 		isLoading: boolean;
-		error: string;
-		addRole: (values: RoleFormValues) => Promise<void>;
+		addRole: (values: RoleFormValues) => {
+			message: string;
+			error: boolean;
+		};
 	};
 	const indexes = roles.map((role) => role.index).sort((a, b) => a - b);
 	const last = indexes[indexes.length - 1];
@@ -54,11 +59,11 @@ function CreateRoleForm() {
 	async function handleForm(values: RoleFormValues) {
 		if (form.isValid()) {
 			values = { ...values };
-			await addRole(values);
-			if (!error) {
-				setNotification(true);
+			const res = await addRole(values);
+			if (!res.error) {
 				form.reset();
 			}
+			setNotification(res);
 		}
 	}
 
@@ -66,11 +71,11 @@ function CreateRoleForm() {
 		<>
 			{notification && (
 				<Notification
-					title="Role Added"
-					color="green"
-					onClose={() => setNotification(false)}
+					title="Notification"
+					color={notification.error ? "red" : "green"}
+					onClose={() => setNotification(null)}
 				>
-					Role has been added successfully
+					{notification.message}
 				</Notification>
 			)}
 			<Box pos="relative">

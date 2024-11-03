@@ -20,14 +20,18 @@ import {
 import { useState } from "react";
 
 function CreateEmployeeForm() {
-	const [notification, setNotification] = useState(false);
-	const { employees, isChangeLoading, error, addEmployee } =
-		useEmployees() as {
-			employees: Employee[];
-			isChangeLoading: boolean;
-			error: string;
-			addEmployee: (employee: Employee) => void;
+	const [notification, setNotification] = useState<{
+		message: string;
+		error: boolean;
+	} | null>(null);
+	const { employees, isChangeLoading, addEmployee } = useEmployees() as {
+		employees: Employee[];
+		isChangeLoading: boolean;
+		addEmployee: (employee: Employee) => {
+			message: string;
+			error: boolean;
 		};
+	};
 	const { roles } = useRoles() as { roles: Role[] };
 	const form = useForm({
 		mode: "uncontrolled",
@@ -105,11 +109,11 @@ function CreateEmployeeForm() {
 
 	async function handleForm(values: Employee) {
 		if (form.isValid()) {
-			await addEmployee(values);
-			if (!error) {
-				setNotification(true);
+			const res = await addEmployee(values);
+			if (!res.error) {
 				form.reset();
 			}
+			setNotification(res);
 		}
 	}
 
@@ -117,11 +121,11 @@ function CreateEmployeeForm() {
 		<>
 			{notification && (
 				<Notification
-					title="Employee Added"
-					color="green"
-					onClose={() => setNotification(false)}
+					title="Notification"
+					color={notification.error ? "red" : "green"}
+					onClose={() => setNotification(null)}
 				>
-					Employee has been added successfully
+					{notification.message}
 				</Notification>
 			)}
 			<Box pos="relative">

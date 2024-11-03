@@ -16,10 +16,15 @@ interface SubmissionFormValues {
 }
 
 function CreateSubmissionForm({ taskId }: { taskId: string }) {
-	const [notification, setNotification] = useState(false);
-	const { addSubmission, error, isChangeLoading } = useTasks() as {
-		addSubmission: (submission: SubmissionFormValues) => void;
-		error: string;
+	const [notification, setNotification] = useState<{
+		message: string;
+		error: boolean;
+	} | null>(null);
+	const { addSubmission, isChangeLoading } = useTasks() as {
+		addSubmission: (submission: SubmissionFormValues) => {
+			message: string;
+			error: boolean;
+		};
 		isChangeLoading: boolean;
 	};
 	const form = useForm({
@@ -38,11 +43,11 @@ function CreateSubmissionForm({ taskId }: { taskId: string }) {
 
 	async function handleForm(values: SubmissionFormValues) {
 		if (form.isValid()) {
-			await addSubmission(values);
-			if (!error) {
-				setNotification(true);
+			const res = await addSubmission(values);
+			if (!res.error) {
 				form.reset();
 			}
+			setNotification(res);
 		}
 	}
 
@@ -50,11 +55,11 @@ function CreateSubmissionForm({ taskId }: { taskId: string }) {
 		<>
 			{notification && (
 				<Notification
-					title="Submission Added"
-					color="green"
-					onClose={() => setNotification(false)}
+					title="Notification"
+					color={notification.error ? "red" : "green"}
+					onClose={() => setNotification(null)}
 				>
-					Employee has been added successfully
+					{notification.message}
 				</Notification>
 			)}
 			<Box pos="relative">

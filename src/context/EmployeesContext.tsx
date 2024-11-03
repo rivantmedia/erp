@@ -145,13 +145,16 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 					"Accept": "application/json"
 				}
 			});
+			if (res.status !== 201) throw new Error("Failed to add employee");
 			const data = await res.json();
 			dispatch({ type: "employee/added", payload: data });
+			return { message: "Employee added successfully", error: false };
 		} catch {
 			dispatch({
 				type: "rejected",
 				payload: "There was an error adding the employee"
 			});
+			return { message: "Failed to add employee", error: true };
 		}
 	}
 
@@ -166,13 +169,17 @@ function EmployeesProvider({ children }: { children: React.ReactNode }) {
 					"Accept": "application/json"
 				}
 			});
+			if (res.status !== 200)
+				throw new Error("Failed to update employee");
 			const data = await res.json();
 			dispatch({ type: "employee/update", payload: data });
+			return { message: "Employee Updated successfully", error: false };
 		} catch {
 			dispatch({
 				type: "rejected",
-				payload: "There was an error adding the employee"
+				payload: "There was an error updating the employee details"
 			});
+			return { message: "Failed to update employee", error: true };
 		}
 	}
 
