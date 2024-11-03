@@ -13,8 +13,8 @@ export type Employee = {
 	department: string;
 	contact: number;
 	employeeId: number;
-	sAdmin: boolean;
-	roleId: string;
+	roleId?: string;
+	sAdmin?: boolean;
 	type?: string;
 	status?: string;
 	location?: string;

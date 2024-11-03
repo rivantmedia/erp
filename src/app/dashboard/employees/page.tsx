@@ -15,7 +15,10 @@ export default function Main() {
 	};
 
 	const employeeReadPermission = accessCheckError(["EMPLOYEES_READ"]);
-	const employeeCreatePermission = accessCheckError(["EMPLOYEES_CREATE"]);
+	const employeeCreatePermission = accessCheckError([
+		"EMPLOYEES_CREATE",
+		"ROLES_READ"
+	]);
 
 	return (
 		<div>

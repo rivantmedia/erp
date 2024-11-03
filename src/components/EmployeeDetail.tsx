@@ -16,7 +16,11 @@ function EmployeeDetail({ employee }: { employee: Employee }) {
 			permissionRequired: PermissionsResolvable
 		) => boolean;
 	};
-	const employeeEditPermission = accessCheckError(["EMPLOYEES_UPDATE"]);
+	const employeeEditPermission = accessCheckError([
+		"EMPLOYEES_UPDATE",
+		"EMPLOYEES_READ_SENSITIVE_INFO",
+		"ROLES_READ"
+	]);
 	const employeeDeletePermission = accessCheckError(["EMPLOYEES_DELETE"]);
 	const employeeViewSensitiveDetailsPermission = accessCheckError([
 		"EMPLOYEES_READ_SENSITIVE_INFO"

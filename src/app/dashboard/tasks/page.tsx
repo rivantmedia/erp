@@ -22,8 +22,14 @@ export default function Main() {
 
 	const taskViewAllPermission = accessCheckError(["TASKS_VIEW_ALL"]);
 	const taskViewPermission = accessCheckError(["TASKS_VIEW"]);
-	const taskCreatePermission = accessCheckError(["TASKS_CREATE"]);
-	const taskEditAllPermission = accessCheckError(["TASKS_EDIT"]);
+	const taskCreatePermission =
+		accessCheckError(["TASKS_CREATE", "EMPLOYEES_READ_SENSITIVE_INFO"]) ||
+		accessCheckError(["TASKS_CREATE", "EMPLOYEES_READ_BASIC_INFO"]) ||
+		accessCheckError(["TASKS_CREATE", "EMPLOYEES_READ"]);
+	const taskEditAllPermission =
+		accessCheckError(["TASKS_EDIT", "EMPLOYEES_READ_SENSITIVE_INFO"]) ||
+		accessCheckError(["TASKS_EDIT", "EMPLOYEES_READ_BASIC_INFO"]) ||
+		accessCheckError(["TASKS_EDIT", "EMPLOYEES_READ"]);
 	const taskDeleteAllPermission = accessCheckError(["TASKS_DELETE"]);
 
 	const tasksAssignedToYou = tasks.filter(
