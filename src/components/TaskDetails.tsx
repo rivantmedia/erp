@@ -1,4 +1,3 @@
-import { useEmployees } from "@/context/EmployeesContext";
 import { Task, useTasks } from "@/context/TasksContext";
 import { ActionIcon, Group, Stack, Text } from "@mantine/core";
 import ModalContainer from "./ModalContainer";
@@ -16,18 +15,6 @@ function TaskDetails({
 }) {
 	const { removeTask } = useTasks() as {
 		removeTask: (id: string) => void;
-	};
-	const { employees } = useEmployees() as {
-		employees: {
-			id: string;
-			fname: string;
-			lname: string;
-			title: string;
-			email: string;
-			contact: number;
-			employeeId: number;
-			sAdmin: boolean;
-		}[];
 	};
 
 	return (
@@ -98,8 +85,7 @@ function TaskDetails({
 					Task Assigned To:
 				</Text>
 				<Text>
-					{employees.find((e) => e.id === task.assigneeId)?.fname}{" "}
-					{employees.find((e) => e.id === task.assigneeId)?.lname}
+					{task.assignee?.fname} {task.assignee?.lname}
 				</Text>
 			</Group>
 			<Group>
@@ -110,8 +96,7 @@ function TaskDetails({
 					Task Assigned By:
 				</Text>
 				<Text>
-					{employees.find((e) => e.id === task.creatorId)?.fname}{" "}
-					{employees.find((e) => e.id === task.creatorId)?.lname}
+					{task.creator?.fname} {task.creator?.lname}
 				</Text>
 			</Group>
 			<Group

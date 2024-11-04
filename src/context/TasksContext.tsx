@@ -27,6 +27,16 @@ export type Task = {
 	creatorId: string;
 	calendarEventId?: string;
 	Submissions?: Submission[];
+	assignee?: {
+		id: string;
+		fname: string;
+		lname: string;
+	};
+	creator?: {
+		id: string;
+		fname: string;
+		lname: string;
+	};
 };
 
 const initialState = {

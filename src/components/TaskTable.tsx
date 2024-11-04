@@ -2,7 +2,6 @@
 
 import { Badge, Table, Group, Text, Loader, Center } from "@mantine/core";
 import { Task, useTasks } from "@/context/TasksContext";
-import { useEmployees } from "@/context/EmployeesContext";
 import DrawerContainer from "./DrawerContainer";
 import TaskDetails from "./TaskDetails";
 import SubmissionDetails from "./SubmissionDetails";
@@ -18,18 +17,6 @@ export default function TaskTable({
 }) {
 	const { isTaskLoading } = useTasks() as {
 		isTaskLoading: boolean;
-	};
-	const { employees } = useEmployees() as {
-		employees: {
-			id: string;
-			fname: string;
-			lname: string;
-			title: string;
-			email: string;
-			contact: number;
-			employeeId: number;
-			sAdmin: boolean;
-		}[];
 	};
 
 	const rows = tasks.map((task: Task) => (
@@ -55,14 +42,12 @@ export default function TaskTable({
 			</Table.Td>
 			<Table.Td>
 				<Badge variant="light">
-					{employees.find((e) => e.id === task.assigneeId)?.fname}{" "}
-					{employees.find((e) => e.id === task.assigneeId)?.lname}
+					{task.assignee?.fname} {task.assignee?.lname}
 				</Badge>
 			</Table.Td>
 			<Table.Td>
 				<Badge variant="light">
-					{employees.find((e) => e.id === task.creatorId)?.fname}{" "}
-					{employees.find((e) => e.id === task.creatorId)?.lname}
+					{task.creator?.fname} {task.creator?.lname}
 				</Badge>
 			</Table.Td>
 			<Table.Td>

@@ -188,7 +188,13 @@ export async function GET() {
 	if (accessError === null) {
 		try {
 			const tasks = await prisma.task.findMany({
-				include: { Submissions: true }
+				include: {
+					Submissions: true,
+					assignee: {
+						select: { id: true, fname: true, lname: true }
+					},
+					creator: { select: { id: true, fname: true, lname: true } }
+				}
 			});
 			return Response.json(tasks, { status: 200 });
 		} catch (error) {
