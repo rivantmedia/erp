@@ -83,6 +83,7 @@ function CreateTaskForm() {
 			const res = await addTask(newTask);
 			if (!res.error) {
 				form.reset();
+				setDate([null, null]);
 			}
 			setNotification(res);
 		}

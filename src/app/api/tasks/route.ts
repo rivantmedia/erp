@@ -5,6 +5,7 @@ import { accessCheckError } from "@/lib/routeProtection";
 import { google } from "googleapis";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { sendEmail } from "@/lib/sendEmail";
 
 const prisma = new PrismaClient();
 
@@ -97,8 +98,32 @@ export async function POST(req: NextRequest) {
 				start: data.start,
 				end: data.end,
 				calendarEventId: taskEvent.data.id ?? ""
-			}
+			},
+			include: { assignee: true, creator: true }
 		});
+
+		if (!task) throw new Error("Failed to create task");
+
+		const emailData = {
+			project: task.project,
+			name: task.name,
+			description: task.description,
+			summary: task.summary,
+			assignee: `${task.assignee.fname} ${task.assignee.lname}`,
+			creator: `${task.creator.fname} ${task.creator.lname}`,
+			start: task.start.toLocaleDateString(),
+			end: task.end.toLocaleDateString()
+		};
+
+		const emailResponse = await sendEmail(
+			"New Task Has Been Assigned",
+			emailData,
+			task.assignee.email
+		);
+
+		if (emailResponse.status !== 200)
+			throw new Error("Failed to send email");
+
 		return Response.json(task, { status: 201 });
 	} catch (e) {
 		console.log("Failed to create task", e);
@@ -163,8 +188,32 @@ export async function PATCH(req: NextRequest) {
 					start: data.start,
 					end: data.end,
 					calendarEventId: taskEvent.data.id ?? data.calendarEventId
-				}
+				},
+				include: { assignee: true, creator: true }
 			});
+
+			if (!task) throw new Error("Failed to create task");
+
+			const emailData = {
+				project: task.project,
+				name: task.name,
+				description: task.description,
+				summary: task.summary,
+				assignee: `${task.assignee.fname} ${task.assignee.lname}`,
+				creator: `${task.creator.fname} ${task.creator.lname}`,
+				start: task.start.toLocaleDateString(),
+				end: task.end.toLocaleDateString()
+			};
+
+			const emailResponse = await sendEmail(
+				"Task Details Have Been Updated",
+				emailData,
+				task.assignee.email
+			);
+
+			if (emailResponse.status !== 200)
+				throw new Error("Failed to send email");
+
 			return Response.json(task, { status: 200 });
 		}
 
