@@ -2,7 +2,7 @@
 
 import { Badge, Table, Group, Text, Loader, Center } from "@mantine/core";
 import { Task, useTasks } from "@/context/TasksContext";
-import DrawerContainer from "./DrawerContainer";
+import DrawerContainer from "@/components/DrawerContainer";
 import TaskDetails from "./TaskDetails";
 import SubmissionDetails from "./SubmissionDetails";
 
