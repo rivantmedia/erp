@@ -66,7 +66,8 @@ export async function POST(req: NextRequest) {
 
 		const emailData = {
 			name: task.name,
-			submissionDate: submission.submissionDate.toLocaleDateString(),
+			submissionDate:
+				submission.submissionDate.toLocaleDateString("en-GB"),
 			note: submission.note,
 			status: submissionStatus[
 				submission.status as keyof typeof submissionStatus
@@ -131,7 +132,8 @@ export async function PATCH(req: NextRequest) {
 
 		const emailData = {
 			name: task.name,
-			submissionDate: submission.submissionDate.toLocaleDateString(),
+			submissionDate:
+				submission.submissionDate.toLocaleDateString("en-GB"),
 			remarks: submission.remarks,
 			status: submissionStatus[
 				submission.status as keyof typeof submissionStatus

@@ -111,8 +111,8 @@ export async function POST(req: NextRequest) {
 			summary: task.summary,
 			assignee: `${task.assignee.fname} ${task.assignee.lname}`,
 			creator: `${task.creator.fname} ${task.creator.lname}`,
-			start: task.start.toLocaleDateString(),
-			end: task.end.toLocaleDateString()
+			start: task.start.toLocaleDateString("en-GB"),
+			end: task.end.toLocaleDateString("en-GB")
 		};
 
 		const emailResponse = await sendEmail(
@@ -201,8 +201,8 @@ export async function PATCH(req: NextRequest) {
 				summary: task.summary,
 				assignee: `${task.assignee.fname} ${task.assignee.lname}`,
 				creator: `${task.creator.fname} ${task.creator.lname}`,
-				start: task.start.toLocaleDateString(),
-				end: task.end.toLocaleDateString()
+				start: task.start.toLocaleDateString("en-GB"),
+				end: task.end.toLocaleDateString("en-GB")
 			};
 
 			const emailResponse = await sendEmail(
