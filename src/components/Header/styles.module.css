@@ -1,0 +1,14 @@
+.greeting {
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	gap: 6px;
+}
+
+.header {
+	display: flex;
+	flex-direction: row;
+	padding: 14px 22px;
+	align-items: center;
+	justify-content: space-between;
+}
