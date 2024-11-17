@@ -1,5 +1,7 @@
 import directory from "./directory";
 
-export default {
+const routes = {
 	directory
 };
+
+export default routes;

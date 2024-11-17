@@ -1,5 +1,5 @@
 import { signIn } from "@/auth";
-import { Button, Container, Text } from "@mantine/core";
+import { Button, Text } from "@mantine/core";
 import Image from "next/image";
 
 export default function Login() {

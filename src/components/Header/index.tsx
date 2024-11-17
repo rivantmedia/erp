@@ -4,11 +4,7 @@ import styles from "./styles.module.css";
 import NotificationIcon from "@/components/icons/notificationIcon";
 import { auth } from "@/auth";
 
-interface Props {}
-
-async function Header(props: Props) {
-	const {} = props;
-
+async function Header() {
 	const session = await auth();
 
 	return (

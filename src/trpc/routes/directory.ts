@@ -1,6 +1,6 @@
 import { publicProcedure } from "@/trpc";
 
-export default {
+const directory = {
 	list: publicProcedure.query(async () => {
 		return [
 			{ id: 1, text: "Buy milk" },
@@ -8,3 +8,5 @@ export default {
 		];
 	})
 };
+
+export default directory;

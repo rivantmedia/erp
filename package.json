@@ -7,8 +7,13 @@
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
-		"lint": "next lint",
+		"lint": "next lint && prettier --write .",
 		"prepare": "husky install"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged && dotenv -e .env.local"
+		}
 	},
 	"dependencies": {
 		"@mantine/charts": "^7.13.5",
@@ -70,6 +75,9 @@
 			"prettier --write"
 		],
 		"**/*.{json,md,css,scss}": [
+			"prettier --write"
+		],
+		"*": [
 			"prettier --write"
 		]
 	}
