@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+lint-staged
+generate-env-example .env.local 
+git add -A

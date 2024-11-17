@@ -7,12 +7,12 @@
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
-		"lint": "next lint && prettier --write .",
-		"prepare": "husky install"
+		"lint": "next lint && prettier --write . && generate-env-example .env.local",
+		"prepare": "husky"
 	},
 	"husky": {
 		"hooks": {
-			"pre-commit": "lint-staged && dotenv -e .env.local"
+			"pre-commit": "lint-staged && generate-env-example .env.local && git add -A"
 		}
 	},
 	"dependencies": {
@@ -44,9 +44,9 @@
 		"@types/node": "^20",
 		"@types/react": "^18",
 		"@types/react-dom": "^18",
-		"dotenv": "^16.4.5",
 		"eslint": "^8",
 		"eslint-config-next": "15.0.3",
+		"generate-env-example": "^1.1.0",
 		"husky": "^9.1.6",
 		"lint-staged": "^15.2.10",
 		"postcss": "^8.4.47",
@@ -75,9 +75,6 @@
 			"prettier --write"
 		],
 		"**/*.{json,md,css,scss}": [
-			"prettier --write"
-		],
-		"*": [
 			"prettier --write"
 		]
 	}
