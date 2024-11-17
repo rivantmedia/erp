@@ -8,7 +8,7 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
-		"prepare": "dotenv -t .env.local && husky install"
+		"prepare": "husky install"
 	},
 	"dependencies": {
 		"@mantine/charts": "^7.13.5",
