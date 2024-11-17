@@ -1,3 +1,4 @@
+[x] Add precommit hooks
 [ ] Remove test components and console logs\
 [ ] Customise mantine styling for components\
 [ ] Create basic components for the app\
