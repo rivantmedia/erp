@@ -4,6 +4,7 @@
 	"private": true,
 	"prettier": "@rivantmedia/prettier-config",
 	"scripts": {
+		"setup": "npm i --save-dev && husky",
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
