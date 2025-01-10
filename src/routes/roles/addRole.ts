@@ -1,5 +1,6 @@
 import { accessCheckError } from "@/lib/routeProtection";
 import { PrismaClient } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 import * as yup from "yup";
 
 const prisma = new PrismaClient();
@@ -16,16 +17,22 @@ export async function addRole(opts: { input: RoleInput }) {
 	const accessError = await accessCheckError(["ROLES_READ", "ROLES_CREATE"]);
 
 	if (accessError) {
-		return { message: accessError.message, status: accessError.status };
+		throw new TRPCError({
+			code: accessError.status as TRPCError["code"],
+			message: accessError.message
+		});
 	}
 
 	try {
-		const role = await prisma.role.create({
+		await prisma.role.create({
 			data: opts.input
 		});
-		return { role, status: 201 };
+		return true;
 	} catch (e) {
 		console.log("Failed to create role", e);
-		return { message: "Failed to create role", status: 500 };
+		throw new TRPCError({
+			code: "INTERNAL_SERVER_ERROR",
+			message: "Failed to create role"
+		});
 	}
 }

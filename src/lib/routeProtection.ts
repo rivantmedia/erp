@@ -17,14 +17,14 @@ export async function accessCheckError(
 	const session = await getServerSession(authOptions);
 
 	if (!session) {
-		return { message: "Login Required", status: 401 };
+		return { message: "Login Required", status: "UNAUTHORIZED" };
 	}
 
 	if (session.user.sAdmin) return null;
 
 	//Check if user has enough permissions in case permissions are required to perform action
 	if (!session.user.roleId && permissionsRequired)
-		return { message: "Missing Permissions", status: 401 };
+		return { message: "Missing Permissions", status: "UNAUTHORIZED" };
 
 	const fetchedRole = await prisma.role.findUnique({
 		where: { id: session.user.roleId! }
@@ -34,7 +34,7 @@ export async function accessCheckError(
 		!fetchedRole ||
 		!new UserPermissions(fetchedRole.permissions).has(permissionsRequired)
 	) {
-		return { message: "Missing Permissions", status: 401 };
+		return { message: "Missing Permissions", status: "UNAUTHORIZED" };
 	}
 
 	return null;

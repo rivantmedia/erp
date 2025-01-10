@@ -1,5 +1,6 @@
 import { accessCheckError } from "@/lib/routeProtection";
 import { Prisma, PrismaClient } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 import * as yup from "yup";
 
 const prisma = new PrismaClient();
@@ -40,28 +41,37 @@ export const AddEmployeeSchema = yup.object({
 	extEligible: yup.boolean().notRequired()
 });
 
-type EmployeeInput = yup.InferType<typeof POSTSchema>;
+type EmployeeInput = yup.InferType<typeof AddEmployeeSchema>;
 
 export async function addEmployee(opts: { input: EmployeeInput }) {
 	const accessError = await accessCheckError(["EMPLOYEES_CREATE"]);
 
 	if (accessError) {
-		return { message: accessError.message, status: accessError.status };
+		throw new TRPCError({
+			code: accessError.status as TRPCError["code"],
+			message: accessError.message
+		});
 	}
 
 	try {
-		const employee = await prisma.employee.create({
+		await prisma.employee.create({
 			data: opts.input
 		});
-		return { employee, status: 201 };
+		return true;
 	} catch (e: unknown | Prisma.PrismaClientKnownRequestError) {
 		if (
 			e instanceof Prisma.PrismaClientKnownRequestError &&
 			e.code == "P2002"
 		) {
-			return { message: "Employee already exist.", status: 400 };
+			throw new TRPCError({
+				code: "CONFLICT",
+				message: "Employee already exists"
+			});
 		}
 		console.log("Failed to create employee", e);
-		return { message: "Failed to create employee", status: 500 };
+		throw new TRPCError({
+			code: "INTERNAL_SERVER_ERROR",
+			message: "Failed to create employee"
+		});
 	}
 }

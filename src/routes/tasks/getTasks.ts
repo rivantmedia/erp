@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { accessCheckError } from "@/lib/routeProtection";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { TRPCError } from "@trpc/server";
 
 const prisma = new PrismaClient();
 
@@ -20,10 +21,13 @@ export async function getTasks() {
 					creator: { select: { id: true, fname: true, lname: true } }
 				}
 			});
-			return { tasks, status: 200 };
+			return tasks;
 		} catch (error) {
 			console.log("Failed to get tasks", error);
-			return { message: "Failed to get tasks", status: 500 };
+			throw new TRPCError({
+				code: "INTERNAL_SERVER_ERROR",
+				message: "Failed to get tasks"
+			});
 		}
 	}
 
@@ -40,12 +44,18 @@ export async function getTasks() {
 				},
 				include: { Submissions: true }
 			});
-			return { tasks, status: 200 };
+			return tasks;
 		} catch (error) {
-			console.log("Failed to get employees", error);
-			return { message: "Failed to get employees", status: 500 };
+			console.log("Failed to get tasks", error);
+			throw new TRPCError({
+				code: "INTERNAL_SERVER_ERROR",
+				message: "Failed to get tasks"
+			});
 		}
 	}
 
-	return { message: accessError2.message, status: accessError2.status };
+	throw new TRPCError({
+		code: accessError.status as TRPCError["code"],
+		message: accessError.message
+	});
 }

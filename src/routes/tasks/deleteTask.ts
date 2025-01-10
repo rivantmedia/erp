@@ -3,6 +3,7 @@ import * as yup from "yup";
 import { accessCheckError } from "@/lib/routeProtection";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { TRPCError } from "@trpc/server";
 
 const prisma = new PrismaClient();
 
@@ -21,15 +22,21 @@ export async function deleteTask(opts: { input: TaskInput }) {
 		const accessError2 = session?.user.id === opts.input.creatorId;
 
 		if (accessError1 === null || accessError2) {
-			const task = await prisma.task.delete({
+			await prisma.task.delete({
 				where: { id: opts.input.id }
 			});
-			return { task, status: 200 };
+			return true;
 		}
 
-		return { message: accessError1.message, status: accessError1.status };
+		throw new TRPCError({
+			code: accessError1.status as TRPCError["code"],
+			message: accessError1.message
+		});
 	} catch (error) {
 		console.log("Failed to delete employee", error);
-		return { message: "Failed to delete employee", status: 500 };
+		throw new TRPCError({
+			code: "INTERNAL_SERVER_ERROR",
+			message: "Failed to delete task"
+		});
 	}
 }

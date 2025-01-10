@@ -4,6 +4,7 @@ import { accessCheckError } from "@/lib/routeProtection";
 import { sendEmail } from "@/lib/sendEmail";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { TRPCError } from "@trpc/server";
 
 const prisma = new PrismaClient();
 
@@ -25,7 +26,10 @@ export async function addSubmission(opts: { input: SubmissionInput }) {
 	const accessError = await accessCheckError(["TASKS_VIEW"]);
 
 	if (accessError) {
-		return { message: accessError.message, status: accessError.status };
+		throw new TRPCError({
+			code: accessError.status as TRPCError["code"],
+			message: accessError.message
+		});
 	}
 
 	try {
@@ -37,10 +41,10 @@ export async function addSubmission(opts: { input: SubmissionInput }) {
 		});
 
 		if (!task || task?.assigneeId !== session?.user.id)
-			return {
-				message: "You are not assigned to this task",
-				status: 403
-			};
+			throw new TRPCError({
+				code: "UNAUTHORIZED",
+				message: "You are not allowed to submit this task"
+			});
 
 		const submission = await prisma.submission.create({
 			data: {
@@ -73,9 +77,12 @@ export async function addSubmission(opts: { input: SubmissionInput }) {
 		if (emailResponse.status !== 200)
 			throw new Error("Failed to send email");
 
-		return { submission, status: 201 };
+		return true;
 	} catch (e) {
 		console.log("Failed to create submission", e);
-		return { message: "Failed to create submission", status: 500 };
+		throw new TRPCError({
+			code: "INTERNAL_SERVER_ERROR",
+			message: "Failed to create submission"
+		});
 	}
 }

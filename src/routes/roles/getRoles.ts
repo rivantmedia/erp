@@ -1,5 +1,6 @@
 import { accessCheckError } from "@/lib/routeProtection";
 import { PrismaClient } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 
 const prisma = new PrismaClient();
 
@@ -7,16 +8,22 @@ export async function getRoles() {
 	const accessError = await accessCheckError("ROLES_READ");
 
 	if (accessError) {
-		return { message: accessError.message, status: accessError.status };
+		throw new TRPCError({
+			code: accessError.status as TRPCError["code"],
+			message: accessError.message
+		});
 	}
 
 	try {
 		const roles = await prisma.role.findMany({
 			orderBy: { index: "asc" }
 		});
-		return { roles, status: 200 };
+		return roles;
 	} catch (error) {
 		console.log("Failed to get roles", error);
-		return { message: "Failed to get roles", status: 500 };
+		throw new TRPCError({
+			code: "INTERNAL_SERVER_ERROR",
+			message: "Failed to get roles"
+		});
 	}
 }

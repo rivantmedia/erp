@@ -1,5 +1,6 @@
 import { accessCheckError } from "@/lib/routeProtection";
 import { PrismaClient } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 import * as yup from "yup";
 
 const prisma = new PrismaClient();
@@ -39,7 +40,7 @@ export const UpdateEmployeeSchema = yup.object({
 	extEligible: yup.boolean().notRequired()
 });
 
-type EmployeeInput = yup.InferType<typeof PATCHSchema>;
+type EmployeeInput = yup.InferType<typeof UpdateEmployeeSchema>;
 
 export async function updateEmployee(opts: { input: EmployeeInput }) {
 	const accessError = await accessCheckError([
@@ -48,11 +49,14 @@ export async function updateEmployee(opts: { input: EmployeeInput }) {
 	]);
 
 	if (accessError) {
-		return { message: accessError.message, status: accessError.status };
+		throw new TRPCError({
+			code: accessError.status as TRPCError["code"],
+			message: accessError.message
+		});
 	}
 
 	try {
-		const employee = await prisma.employee.update({
+		await prisma.employee.update({
 			where: { id: opts.input.id },
 			data: {
 				fname: opts.input.fname,
@@ -88,9 +92,12 @@ export async function updateEmployee(opts: { input: EmployeeInput }) {
 				extEligible: opts.input.extEligible
 			}
 		});
-		return { employee, status: 200 };
+		return true;
 	} catch (error) {
 		console.log("Failed to update employee", error);
-		return { message: "Failed to update employee", status: 500 };
+		throw new TRPCError({
+			code: "INTERNAL_SERVER_ERROR",
+			message: "Failed to update employee"
+		});
 	}
 }

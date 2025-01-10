@@ -5,6 +5,7 @@ import { google } from "googleapis";
 import { sendEmail } from "@/lib/sendEmail";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { TRPCError } from "@trpc/server";
 
 const prisma = new PrismaClient();
 
@@ -104,12 +105,18 @@ export async function updateTask(opts: { input: TaskInput }) {
 			if (emailResponse.status !== 200)
 				console.log("Failed to send email");
 
-			return { task, status: 200 };
+			return true;
 		}
 
-		return { message: accessError1?.message, status: accessError1?.status };
+		throw new TRPCError({
+			code: accessError1.status as TRPCError["code"],
+			message: accessError1.message
+		});
 	} catch (error) {
 		console.log("Failed to update employee", error);
-		return { message: "Failed to update employee", status: 500 };
+		throw new TRPCError({
+			code: "INTERNAL_SERVER_ERROR",
+			message: "Failed to update task"
+		});
 	}
 }

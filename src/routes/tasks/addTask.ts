@@ -3,6 +3,7 @@ import * as yup from "yup";
 import { accessCheckError } from "@/lib/routeProtection";
 import { google } from "googleapis";
 import { sendEmail } from "@/lib/sendEmail";
+import { TRPCError } from "@trpc/server";
 
 const prisma = new PrismaClient();
 
@@ -27,7 +28,10 @@ export async function addTask(opts: { input: TaskInput }) {
 	]);
 
 	if (accessError) {
-		return { message: accessError.message, status: accessError.status };
+		throw new TRPCError({
+			code: accessError.status as TRPCError["code"],
+			message: accessError.message
+		});
 	}
 
 	try {
@@ -98,9 +102,12 @@ export async function addTask(opts: { input: TaskInput }) {
 
 		if (emailResponse.status !== 200) console.log("Failed to send email");
 
-		return { task, status: 201 };
+		return true;
 	} catch (e) {
 		console.log("Failed to create task", e);
-		return { message: "Failed to create task", status: 500 };
+		throw new TRPCError({
+			code: "INTERNAL_SERVER_ERROR",
+			message: "Failed to create task"
+		});
 	}
 }

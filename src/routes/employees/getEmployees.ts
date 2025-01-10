@@ -1,5 +1,6 @@
 import { accessCheckError } from "@/lib/routeProtection";
 import { PrismaClient } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 
 const prisma = new PrismaClient();
 
@@ -13,13 +14,13 @@ export async function getEmployees() {
 			const employees = await prisma.employee.findMany({
 				orderBy: { employeeId: "asc" }
 			});
-			return { employees, status: 200 };
+			return employees;
 		} catch (error) {
 			console.log("Failed to get employees", error);
-			return {
-				message: "Failed to get employees",
-				status: 500
-			};
+			throw new TRPCError({
+				code: "INTERNAL_SERVER_ERROR",
+				message: "Failed to get employees"
+			});
 		}
 	}
 
@@ -58,13 +59,13 @@ export async function getEmployees() {
 				},
 				orderBy: { employeeId: "asc" }
 			});
-			return { employees, status: 200 };
+			return employees;
 		} catch (error) {
 			console.log("Failed to get employees", error);
-			return {
-				message: "Failed to get employees",
-				status: 500
-			};
+			throw new TRPCError({
+				code: "INTERNAL_SERVER_ERROR",
+				message: "Failed to get employees"
+			});
 		}
 	}
 
@@ -85,18 +86,18 @@ export async function getEmployees() {
 				},
 				orderBy: { employeeId: "asc" }
 			});
-			return { employees, status: 200 };
+			return employees;
 		} catch (error) {
 			console.log("Failed to get employees", error);
-			return {
-				message: "Failed to get employees",
-				status: 500
-			};
+			throw new TRPCError({
+				code: "INTERNAL_SERVER_ERROR",
+				message: "Failed to get employees"
+			});
 		}
 	}
 
-	return {
-		message: accessError.message,
-		status: accessError.status
-	};
+	throw new TRPCError({
+		code: accessError.status as TRPCError["code"],
+		message: accessError.message
+	});
 }
