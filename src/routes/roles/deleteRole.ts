@@ -5,9 +5,7 @@ import * as yup from "yup";
 
 const prisma = new PrismaClient();
 
-export const DeleteRoleSchema = yup.object({
-	roleId: yup.string().required()
-});
+export const DeleteRoleSchema = yup.string().required();
 
 type RoleInput = yup.InferType<typeof DeleteRoleSchema>;
 
@@ -23,7 +21,7 @@ export async function deleteRole(opts: { input: RoleInput }) {
 
 	try {
 		await prisma.role.delete({
-			where: { id: opts.input.roleId }
+			where: { id: opts.input }
 		});
 		return true;
 	} catch (error) {

@@ -13,6 +13,7 @@ export const UpdateEmployeeSchema = yup.object({
 	department: yup.string().required(),
 	title: yup.string().required(),
 	contact: yup.number().required(),
+	sAdmin: yup.boolean().required(),
 	roleId: yup.string().required(),
 	type: yup.string().notRequired(),
 	status: yup.string().notRequired(),

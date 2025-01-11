@@ -1,19 +1,10 @@
-import { Employee, useEmployees } from "@/context/EmployeesContext";
-import { Task, useTasks } from "@/context/TasksContext";
+import { trpc } from "@/app/_trpc/client";
 import { Notification, Select, Textarea } from "@mantine/core";
 import { Box, Button, Group, LoadingOverlay, TextInput } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
-
-interface TaskFormValues {
-	name: string;
-	project: string;
-	summary: string;
-	description: string;
-	assigneeId: string;
-}
 
 function CreateTaskForm() {
 	const [notification, setNotification] = useState<{
@@ -22,16 +13,22 @@ function CreateTaskForm() {
 	} | null>(null);
 	const { data: session } = useSession();
 	const [date, setDate] = useState<[Date | null, Date | null]>([null, null]);
-	const { employees } = useEmployees() as {
-		employees: Employee[];
-	};
-	const { addTask, isChangeLoading } = useTasks() as {
-		addTask: (newTask: Task) => {
-			message: string;
-			error: boolean;
-		};
-		isChangeLoading: boolean;
-	};
+	const [isChangeLoading, setIsChangeLoading] = useState(false);
+	const getEmployees = trpc.getEmployees.useQuery();
+	const getTask = trpc.getTasks.useQuery();
+	const addTask = trpc.addTask.useMutation({
+		onSuccess: () => {
+			getTask.refetch();
+			setNotification({
+				message: "Task Created Successfully",
+				error: false
+			});
+		},
+		onSettled: () => setIsChangeLoading(false),
+		onError: (error) => {
+			setNotification({ message: error.message, error: true });
+		}
+	});
 
 	const form = useForm({
 		mode: "uncontrolled",
@@ -63,10 +60,10 @@ function CreateTaskForm() {
 		}
 	});
 
-	async function handleForm(values: TaskFormValues) {
-		const assignedEmail = employees.find(
+	async function handleForm(values: typeof form.values) {
+		const assignedEmail = getEmployees.data?.find(
 			(e) => values.assigneeId === e.id
-		)?.email;
+		)?.email as string;
 		const [start, end] = date;
 		if (start === null || end === null) {
 			form.setErrors({ start: "Task Duration Empty" });
@@ -80,12 +77,9 @@ function CreateTaskForm() {
 			creatorId: session?.user.id as string
 		};
 		if (form.isValid()) {
-			const res = await addTask(newTask);
-			if (!res.error) {
-				form.reset();
-				setDate([null, null]);
-			}
-			setNotification(res);
+			setIsChangeLoading(true);
+			addTask.mutate(newTask);
+			form.reset();
 		}
 	}
 
@@ -150,7 +144,7 @@ function CreateTaskForm() {
 						withAsterisk
 						label="Assign Task To:"
 						mt="md"
-						data={employees.map((e) => ({
+						data={getEmployees.data?.map((e) => ({
 							label: `${e.fname} ${e.lname}`,
 							value: e.id as string
 						}))}

@@ -5,9 +5,7 @@ import * as yup from "yup";
 
 const prisma = new PrismaClient();
 
-export const DeleteEmployeeSchema = yup.object({
-	id: yup.string().required()
-});
+export const DeleteEmployeeSchema = yup.string().required();
 
 type EmployeeInput = yup.InferType<typeof DeleteEmployeeSchema>;
 
@@ -23,7 +21,7 @@ export async function deleteEmployee(opts: { input: EmployeeInput }) {
 
 	try {
 		await prisma.employee.delete({
-			where: { id: opts.input.id }
+			where: { id: opts.input }
 		});
 		return true;
 	} catch (error) {

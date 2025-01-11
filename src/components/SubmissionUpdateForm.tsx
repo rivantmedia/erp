@@ -1,4 +1,4 @@
-import { Submission, useTasks } from "@/context/TasksContext";
+import { getTaskOutput, trpc } from "@/app/_trpc/client";
 import {
 	Badge,
 	Button,
@@ -29,26 +29,23 @@ const SubmissionSelectStatus = [
 	}
 ];
 
-interface SubmissionFormValues {
-	id: string;
-	taskId: string;
-	status: string;
-	remarks: string;
-}
-
 function SubmissionUpdateForm({
 	submission,
 	submissionEditPermission,
 	i
 }: {
-	submission: Submission;
+	submission: getTaskOutput[0]["Submissions"][0];
 	submissionEditPermission: boolean;
 	i: number;
 }) {
 	const [loading, setLoading] = useState(false);
-	const { updateSubmission } = useTasks() as {
-		updateSubmission: (data: SubmissionFormValues) => void;
-	};
+	const getTasks = trpc.getTasks.useQuery();
+	const updateSubmission = trpc.updateSubmission.useMutation({
+		onSuccess: () => {
+			getTasks.refetch();
+		},
+		onSettled: () => setLoading(false)
+	});
 
 	const submissionDate = useMemo(
 		() => new Date(submission.submissionDate).toLocaleDateString(),
@@ -76,11 +73,10 @@ function SubmissionUpdateForm({
 		}
 	});
 
-	async function handleForm(values: SubmissionFormValues) {
+	async function handleForm(values: typeof form.values) {
 		if (form.isValid()) {
 			setLoading(true);
-			await updateSubmission(values);
-			setLoading(false);
+			updateSubmission.mutate(values);
 		}
 	}
 

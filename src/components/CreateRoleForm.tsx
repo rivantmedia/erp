@@ -1,4 +1,4 @@
-import { Role, useRoles } from "@/context/RolesContext";
+import { trpc } from "@/app/_trpc/client";
 import Roles from "@/lib/UserPermissions";
 import { Checkbox, Notification, SimpleGrid } from "@mantine/core";
 import {
@@ -12,26 +12,32 @@ import {
 import { hasLength, useForm } from "@mantine/form";
 import { useState } from "react";
 
-interface RoleFormValues {
-	name: string;
-	index: number;
-	permissions: number;
-}
-
 function CreateRoleForm() {
 	const [notification, setNotification] = useState<{
 		message: string;
 		error: boolean;
 	} | null>(null);
-	const { roles, isLoading, addRole } = useRoles() as {
-		roles: Role[];
-		isLoading: boolean;
-		addRole: (values: RoleFormValues) => {
-			message: string;
-			error: boolean;
-		};
-	};
-	const indexes = roles.map((role) => role.index).sort((a, b) => a - b);
+	const [isLoading, setIsLoading] = useState(false);
+	const getRoles = trpc.getRoles.useQuery();
+	const addRole = trpc.addRole.useMutation({
+		onSuccess: () => {
+			getRoles.refetch();
+			setNotification({
+				message: "Role has been added successfully",
+				error: false
+			});
+		},
+		onSettled: () => {
+			setIsLoading(false);
+		},
+		onError: (err) => {
+			setNotification({ message: err.message, error: true });
+		}
+	});
+
+	const indexes = getRoles.data
+		?.map((role) => role.index)
+		.sort((a, b) => a - b) as number[];
 	const last = indexes[indexes.length - 1];
 	const form = useForm({
 		mode: "uncontrolled",
@@ -56,14 +62,12 @@ function CreateRoleForm() {
 		}
 	});
 
-	async function handleForm(values: RoleFormValues) {
+	async function handleForm(values: typeof form.values) {
 		if (form.isValid()) {
+			setIsLoading(true);
 			values = { ...values };
-			const res = await addRole(values);
-			if (!res.error) {
-				form.reset();
-			}
-			setNotification(res);
+			addRole.mutate(values);
+			form.reset();
 		}
 	}
 

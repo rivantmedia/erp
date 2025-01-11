@@ -1,25 +1,21 @@
 "use client";
 
 import { Badge, Table, Group, Text, Loader, Center } from "@mantine/core";
-import { Task, useTasks } from "@/context/TasksContext";
 import DrawerContainer from "@/components/DrawerContainer";
 import TaskDetails from "./TaskDetails";
 import SubmissionDetails from "./SubmissionDetails";
+import { getTaskOutput } from "@/app/_trpc/client";
 
 export default function TaskTable({
 	tasks,
 	taskEditPermission,
 	taskDeletePermission
 }: {
-	tasks: Task[];
+	tasks: getTaskOutput;
 	taskEditPermission: boolean;
 	taskDeletePermission: boolean;
 }) {
-	const { isTaskLoading } = useTasks() as {
-		isTaskLoading: boolean;
-	};
-
-	const rows = tasks.map((task: Task) => (
+	const rows = tasks.map((task) => (
 		<Table.Tr key={task.id}>
 			<Table.Td>
 				<Group gap="sm">
@@ -79,7 +75,7 @@ export default function TaskTable({
 
 	return (
 		<>
-			{isTaskLoading ? (
+			{!tasks ? (
 				<Center
 					h="100%"
 					mt="lg"

@@ -1,8 +1,9 @@
-import { Task, useTasks } from "@/context/TasksContext";
-import { ActionIcon, Group, Stack, Text } from "@mantine/core";
+import { ActionIcon, Group, Loader, Stack, Text } from "@mantine/core";
 import ModalContainer from "./ModalContainer";
 import UpdateTaskForm from "./UpdateTaskForm";
 import { IconTrash } from "@tabler/icons-react";
+import { getTaskOutput, trpc } from "@/app/_trpc/client";
+import { useState } from "react";
 
 function TaskDetails({
 	taskEditPermission,
@@ -11,11 +12,14 @@ function TaskDetails({
 }: {
 	taskEditPermission: boolean;
 	taskDeletePermission: boolean;
-	task: Task;
+	task: getTaskOutput[0];
 }) {
-	const { removeTask } = useTasks() as {
-		removeTask: (id: string) => void;
-	};
+	const [loading, setLoading] = useState(false);
+	const getTasks = trpc.getTasks.useQuery();
+	const deleteTask = trpc.deleteTask.useMutation({
+		onSuccess: () => getTasks.refetch(),
+		onSettled: () => setLoading(false)
+	});
 
 	return (
 		<Stack
@@ -116,12 +120,22 @@ function TaskDetails({
 						variant="subtle"
 						color="red"
 						size="xl"
-						onClick={() => removeTask(task.id as string)}
+						onClick={() => {
+							setLoading(true);
+							deleteTask.mutate({
+								id: task.id,
+								creatorId: task.creatorId
+							});
+						}}
 					>
-						<IconTrash
-							style={{ width: "70%", height: "70%" }}
-							stroke={1.5}
-						/>
+						{loading ? (
+							<Loader color="red" />
+						) : (
+							<IconTrash
+								style={{ width: "70%", height: "70%" }}
+								stroke={1.5}
+							/>
+						)}
 					</ActionIcon>
 				)}
 			</Group>

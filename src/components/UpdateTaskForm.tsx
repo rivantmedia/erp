@@ -1,20 +1,9 @@
-import { Employee, useEmployees } from "@/context/EmployeesContext";
-import { Task, useTasks } from "@/context/TasksContext";
+import { trpc } from "@/app/_trpc/client";
 import { Notification, Select, Textarea } from "@mantine/core";
 import { Box, Button, Group, LoadingOverlay, TextInput } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
 import { useEffect, useState } from "react";
-
-interface TaskFormValues {
-	name: string;
-	project: string;
-	summary: string;
-	description: string;
-	assigneeId: string;
-	creatorId: string;
-	calendarEventId: string;
-}
 
 function UpdateTaskForm({ id }: { id: string }) {
 	const [notification, setNotification] = useState<{
@@ -22,18 +11,24 @@ function UpdateTaskForm({ id }: { id: string }) {
 		error: boolean;
 	} | null>(null);
 	const [date, setDate] = useState<[Date | null, Date | null]>([null, null]);
-	const { employees } = useEmployees() as {
-		employees: Employee[];
-	};
-	const { tasks, updateTask, isChangeLoading } = useTasks() as {
-		tasks: Task[];
-		updateTask: (newTask: Task) => {
-			message: string;
-			error: boolean;
-		};
-		isChangeLoading: boolean;
-	};
-	const task = tasks.find((t) => t.id === id);
+	const [isChangeLoading, setIsChangeLoading] = useState(false);
+	const getEmployees = trpc.getEmployees.useQuery();
+	const getTasks = trpc.getTasks.useQuery();
+	const updateTask = trpc.updateTask.useMutation({
+		onSuccess: () => {
+			getTasks.refetch();
+			setNotification({
+				message: "Task Updated Successfully",
+				error: false
+			});
+		},
+		onSettled: () => setIsChangeLoading(false),
+		onError: (error) => {
+			setNotification({ message: error.message, error: true });
+		}
+	});
+
+	const task = getTasks.data?.find((t) => t.id === id);
 
 	const form = useForm({
 		mode: "uncontrolled",
@@ -75,10 +70,11 @@ function UpdateTaskForm({ id }: { id: string }) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	async function handleForm(values: TaskFormValues) {
-		const assignedEmail = employees.find(
+	async function handleForm(values: typeof form.values) {
+		setIsChangeLoading(true);
+		const assignedEmail = getEmployees.data?.find(
 			(e) => values.assigneeId === e.id
-		)?.email;
+		)?.email as string;
 		const [start, end] = date;
 		if (start === null || end === null) {
 			form.setErrors({ start: "Task Duration Empty" });
@@ -86,8 +82,7 @@ function UpdateTaskForm({ id }: { id: string }) {
 		}
 		const taskData = { ...values, id, assignedEmail, start, end };
 		if (form.isValid()) {
-			const res = await updateTask(taskData);
-			setNotification(res);
+			updateTask.mutate(taskData);
 		}
 	}
 
@@ -152,8 +147,8 @@ function UpdateTaskForm({ id }: { id: string }) {
 						withAsterisk
 						label="Assign Task To:"
 						mt="md"
-						data={employees
-							.filter((e) => e.id !== undefined)
+						data={getEmployees.data
+							?.filter((e) => e.id !== undefined)
 							.map((e) => ({
 								label: `${e.fname} ${e.lname}`,
 								value: e.id as string
@@ -166,8 +161,8 @@ function UpdateTaskForm({ id }: { id: string }) {
 						label="Task Assigned By:"
 						mt="md"
 						disabled
-						data={employees
-							.filter((e) => e.id !== undefined)
+						data={getEmployees.data
+							?.filter((e) => e.id !== undefined)
 							.map((e) => ({
 								label: `${e.fname} ${e.lname}`,
 								value: e.id as string

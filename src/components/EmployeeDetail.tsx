@@ -1,16 +1,32 @@
-import { Employee, useEmployees } from "@/context/EmployeesContext";
 import { useRoles } from "@/context/RolesContext";
 import { PermissionsResolvable } from "@/lib/UserPermissions";
-import { ActionIcon, Anchor, Badge, Group, Stack, Text } from "@mantine/core";
+import {
+	ActionIcon,
+	Anchor,
+	Badge,
+	Group,
+	Loader,
+	Stack,
+	Text
+} from "@mantine/core";
 import ModalContainer from "./ModalContainer";
 import UpdateEmployeeForm from "./UpdateEmployeeForm";
 import { IconTrash } from "@tabler/icons-react";
+import { trpc } from "@/app/_trpc/client";
+import { Employee } from "@prisma/client";
+import { useState } from "react";
 
 function EmployeeDetail({ employee }: { employee: Employee }) {
-	const { removeEmployee } = useEmployees() as {
-		isEmployeeLoading: boolean;
-		removeEmployee: (id: string) => void;
-	};
+	const [loading, setLoading] = useState(false);
+	const getEmployees = trpc.getEmployees.useQuery();
+	const deleteEmployee = trpc.deleteEmployee.useMutation({
+		onSuccess: () => {
+			getEmployees.refetch();
+		},
+		onSettled: () => {
+			setLoading(false);
+		}
+	});
 	const { accessCheckError } = useRoles() as {
 		accessCheckError: (
 			permissionRequired: PermissionsResolvable
@@ -409,12 +425,19 @@ function EmployeeDetail({ employee }: { employee: Employee }) {
 						variant="subtle"
 						color="red"
 						size="xl"
-						onClick={() => removeEmployee(employee.id as string)}
+						onClick={() => {
+							setLoading(true);
+							deleteEmployee.mutate(employee.id as string);
+						}}
 					>
-						<IconTrash
-							style={{ width: "70%", height: "70%" }}
-							stroke={1.5}
-						/>
+						{loading ? (
+							<Loader color="red" />
+						) : (
+							<IconTrash
+								style={{ width: "70%", height: "70%" }}
+								stroke={1.5}
+							/>
+						)}
 					</ActionIcon>
 				)}
 			</Group>
