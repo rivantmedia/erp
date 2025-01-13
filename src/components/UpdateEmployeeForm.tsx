@@ -1,5 +1,4 @@
-import { Employee, useEmployees } from "@/context/EmployeesContext";
-import { Role, useRoles } from "@/context/RolesContext";
+import { trpc } from "@/app/_trpc/client";
 import { Notification, Select } from "@mantine/core";
 import {
 	Box,
@@ -17,6 +16,7 @@ import {
 	isNotEmpty,
 	useForm
 } from "@mantine/form";
+import { Employee } from "@prisma/client";
 import { useState } from "react";
 
 function UpdateEmployeeForm({ id }: { id: string }) {
@@ -24,16 +24,25 @@ function UpdateEmployeeForm({ id }: { id: string }) {
 		message: string;
 		error: boolean;
 	} | null>(null);
-	const { employees, isChangeLoading, updateEmployee } = useEmployees() as {
-		employees: Employee[];
-		isChangeLoading: boolean;
-		updateEmployee: (employee: Employee) => {
-			message: string;
-			error: boolean;
-		};
-	};
-	const { roles } = useRoles() as { roles: Role[] };
-	const employee = employees.find((e) => e.id === id);
+	const [isChangeLoading, setIsChangeLoading] = useState(false);
+	const getEmployees = trpc.getEmployees.useQuery();
+	const updateEmployee = trpc.updateEmployee.useMutation({
+		onSuccess: () => {
+			getEmployees.refetch();
+			setNotification({
+				message: "Employee data updated successfully",
+				error: false
+			});
+		},
+		onSettled: () => {
+			setIsChangeLoading(false);
+		},
+		onError: (err) => {
+			setNotification({ message: err.message, error: true });
+		}
+	});
+	const getRoles = trpc.getRoles.useQuery();
+	const employee = getEmployees.data?.find((e) => e.id === id) as Employee;
 
 	const form = useForm({
 		mode: "uncontrolled",
@@ -103,10 +112,10 @@ function UpdateEmployeeForm({ id }: { id: string }) {
 		}
 	});
 
-	async function handleForm(values: Employee) {
+	async function handleForm(values: typeof form.values) {
 		if (form.isValid()) {
-			const res = await updateEmployee(values);
-			setNotification(res);
+			setIsChangeLoading(true);
+			updateEmployee.mutate(values);
 		}
 	}
 
@@ -186,7 +195,7 @@ function UpdateEmployeeForm({ id }: { id: string }) {
 						withAsterisk
 						label="Role Access"
 						mt="md"
-						data={roles.map((role) => ({
+						data={getRoles.data?.map((role) => ({
 							label: role.name,
 							value: role.id
 						}))}

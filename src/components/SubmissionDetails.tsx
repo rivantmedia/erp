@@ -1,11 +1,11 @@
-import { Task } from "@/context/TasksContext";
 import { Stack, Text } from "@mantine/core";
 import { useSession } from "next-auth/react";
 import ModalContainer from "./ModalContainer";
 import CreateSubmissionForm from "./CreateSubmissionForm";
 import SubmissionUpdateForm from "./SubmissionUpdateForm";
+import { getTaskOutput } from "@/app/_trpc/client";
 
-function SubmissionDetails({ task }: { task: Task }) {
+function SubmissionDetails({ task }: { task: getTaskOutput[0] }) {
 	const { data: session } = useSession();
 	const { Submissions } = task;
 	const submissionCreatePermission = task.assigneeId === session?.user.id;

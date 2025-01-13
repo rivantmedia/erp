@@ -1,6 +1,5 @@
 "use client";
 
-import { Employee, useEmployees } from "@/context/EmployeesContext";
 import {
 	Badge,
 	Table,
@@ -14,6 +13,8 @@ import DrawerContainer from "./DrawerContainer";
 import { useRoles } from "@/context/RolesContext";
 import { PermissionsResolvable } from "@/lib/UserPermissions";
 import EmployeeDetail from "./EmployeeDetail";
+import { trpc } from "@/app/_trpc/client";
+import { Employee } from "@prisma/client";
 
 export default function EmployeeTable() {
 	const { accessCheckError } = useRoles() as {
@@ -21,10 +22,7 @@ export default function EmployeeTable() {
 			permissionRequired: PermissionsResolvable
 		) => boolean;
 	};
-	const { employees, isEmployeeLoading } = useEmployees() as {
-		employees: Employee[];
-		isEmployeeLoading: boolean;
-	};
+	const getEmployees = trpc.getEmployees.useQuery();
 
 	const employeeViewDetailsPermission = accessCheckError([
 		"EMPLOYEES_READ_BASIC_INFO"
@@ -33,7 +31,7 @@ export default function EmployeeTable() {
 		"EMPLOYEES_READ_SENSITIVE_INFO"
 	]);
 
-	const rows = employees.map((employee) => (
+	const rows = getEmployees.data?.map((employee) => (
 		<Table.Tr key={employee.employeeId}>
 			<Table.Td>
 				<Group gap="sm">
@@ -68,7 +66,7 @@ export default function EmployeeTable() {
 					{(employeeViewDetailsPermission ||
 						employeeViewSensitiveDetailsPermission) && (
 						<DrawerContainer title="View Details">
-							<EmployeeDetail employee={employee} />
+							<EmployeeDetail employee={employee as Employee} />
 						</DrawerContainer>
 					)}
 				</Group>
@@ -78,14 +76,14 @@ export default function EmployeeTable() {
 
 	return (
 		<>
-			{isEmployeeLoading ? (
+			{!getEmployees.data ? (
 				<Center
 					h="100%"
 					mt="lg"
 				>
 					<Loader />
 				</Center>
-			) : employees.length !== 0 ? (
+			) : getEmployees.data.length !== 0 ? (
 				<Table.ScrollContainer minWidth={800}>
 					<Table verticalSpacing="sm">
 						<Table.Thead>

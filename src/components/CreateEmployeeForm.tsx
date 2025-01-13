@@ -1,5 +1,4 @@
-import { Employee, useEmployees } from "@/context/EmployeesContext";
-import { Role, useRoles } from "@/context/RolesContext";
+import { trpc } from "@/app/_trpc/client";
 import { Notification, Select } from "@mantine/core";
 import {
 	Box,
@@ -24,15 +23,25 @@ function CreateEmployeeForm() {
 		message: string;
 		error: boolean;
 	} | null>(null);
-	const { employees, isChangeLoading, addEmployee } = useEmployees() as {
-		employees: Employee[];
-		isChangeLoading: boolean;
-		addEmployee: (employee: Employee) => {
-			message: string;
-			error: boolean;
-		};
-	};
-	const { roles } = useRoles() as { roles: Role[] };
+	const [isChangeLoading, setIsChangeLoading] = useState(false);
+	const getEmployees = trpc.getEmployees.useQuery();
+	const addEmployee = trpc.addEmployee.useMutation({
+		onSuccess: () => {
+			getEmployees.refetch();
+			setNotification({
+				message: "Employee added successfully",
+				error: false
+			});
+		},
+		onSettled: () => {
+			setIsChangeLoading(false);
+		},
+		onError: (error) => {
+			setNotification({ message: error.message, error: true });
+		}
+	});
+	const getRoles = trpc.getRoles.useQuery();
+
 	const form = useForm({
 		mode: "uncontrolled",
 		initialValues: {
@@ -94,26 +103,24 @@ function CreateEmployeeForm() {
 	});
 
 	function checkEmail(value: string) {
-		const employee = employees.find((e) => e.email === value);
+		const employee = getEmployees.data?.find((e) => e.email === value);
 		if (employee) {
 			return "Email already exist.";
 		}
 	}
 
 	function checkID(value: number) {
-		const employee = employees.find((e) => e.employeeId === value);
+		const employee = getEmployees.data?.find((e) => e.employeeId === value);
 		if (employee) {
 			return "Employee ID already exist.";
 		}
 	}
 
-	async function handleForm(values: Employee) {
+	async function handleForm(values: typeof form.values) {
 		if (form.isValid()) {
-			const res = await addEmployee(values);
-			if (!res.error) {
-				form.reset();
-			}
-			setNotification(res);
+			setIsChangeLoading(true);
+			addEmployee.mutate(values);
+			form.reset();
 		}
 	}
 
@@ -192,7 +199,7 @@ function CreateEmployeeForm() {
 						withAsterisk
 						label="Role Access"
 						mt="md"
-						data={roles.map((role) => ({
+						data={getRoles.data?.map((role) => ({
 							label: role.name,
 							value: role.id
 						}))}

@@ -5,15 +5,13 @@ import { useSession } from "next-auth/react";
 import { Group, Text } from "@mantine/core";
 import TaskTable from "@/components/TaskTable";
 import CreateTaskForm from "@/components/CreateTaskForm";
-import { Task, useTasks } from "@/context/TasksContext";
-import { useRoles } from "@/context/RolesContext";
 import { PermissionsResolvable } from "@/lib/UserPermissions";
+import { getTaskOutput, trpc } from "@/app/_trpc/client";
+import { useRoles } from "@/context/RolesContext";
 
 export default function Main() {
 	const { data: session } = useSession();
-	const { tasks } = useTasks() as {
-		tasks: Task[];
-	};
+	const getTasks = trpc.getTasks.useQuery();
 	const { accessCheckError } = useRoles() as {
 		accessCheckError: (
 			permissionRequired: PermissionsResolvable
@@ -32,19 +30,19 @@ export default function Main() {
 		accessCheckError(["TASKS_EDIT", "EMPLOYEES_READ"]);
 	const taskDeleteAllPermission = accessCheckError(["TASKS_DELETE"]);
 
-	const tasksAssignedToYou = tasks.filter(
-		(task) => task.assigneeId === session?.user.id
-	);
-	const tasksAssignedByYou = tasks.filter(
-		(task) => task.creatorId === session?.user.id
-	);
+	const tasksAssignedToYou =
+		getTasks.data?.filter((task) => task.assigneeId === session?.user.id) ??
+		[];
+	const tasksAssignedByYou =
+		getTasks.data?.filter((task) => task.creatorId === session?.user.id) ??
+		[];
 
 	const tasksAssignedByOther = taskViewAllPermission
-		? tasks.filter(
+		? getTasks.data?.filter(
 				(task) =>
 					task.assigneeId !== session?.user.id &&
 					task.creatorId !== session?.user.id
-		  )
+		  ) ?? []
 		: null;
 
 	return (
@@ -69,7 +67,7 @@ export default function Main() {
 						Task Assigned By/To Others
 					</Text>
 					<TaskTable
-						tasks={tasksAssignedByOther as Task[]}
+						tasks={tasksAssignedByOther as getTaskOutput}
 						taskEditPermission={taskEditAllPermission}
 						taskDeletePermission={taskDeleteAllPermission}
 					/>
@@ -88,7 +86,7 @@ export default function Main() {
 						Task Assigned To You
 					</Text>
 					<TaskTable
-						tasks={tasksAssignedToYou}
+						tasks={tasksAssignedToYou as getTaskOutput}
 						taskEditPermission={false}
 						taskDeletePermission={false}
 					/>
@@ -103,7 +101,7 @@ export default function Main() {
 						Task Assigned By You
 					</Text>
 					<TaskTable
-						tasks={tasksAssignedByYou}
+						tasks={tasksAssignedByYou as getTaskOutput}
 						taskEditPermission={true}
 						taskDeletePermission={true}
 					/>

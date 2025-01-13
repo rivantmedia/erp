@@ -1,6 +1,6 @@
 "use client";
 
-import { Role, useRoles } from "@/context/RolesContext";
+import { useRoles } from "@/context/RolesContext";
 import {
 	Badge,
 	Table,
@@ -16,22 +16,30 @@ import { useSession } from "next-auth/react";
 import ModalContainer from "./ModalContainer";
 import UserPermissions, { PermissionsResolvable } from "@/lib/UserPermissions";
 import UpdateRoleForm from "./UpdateRoleForm";
+import { trpc } from "@/app/_trpc/client";
+import { useState } from "react";
 
 export default function RolesTable() {
 	const { data: session } = useSession();
-	const { roles, removeRole, isRoleLoading, accessCheckError } =
-		useRoles() as {
-			roles: Role[];
-			isRoleLoading: boolean;
-			removeRole: (roleId: string) => void;
-			accessCheckError: (
-				permissionRequired: PermissionsResolvable
-			) => boolean;
-		};
+	const [loading, setLoading] = useState(false);
+	const getRoles = trpc.getRoles.useQuery();
+	const deleteRole = trpc.deleteRole.useMutation({
+		onSuccess: () => {
+			getRoles.refetch();
+		},
+		onSettled: () => {
+			setLoading(false);
+		}
+	});
+	const { accessCheckError } = useRoles() as {
+		accessCheckError: (
+			permissionRequired: PermissionsResolvable
+		) => boolean;
+	};
 	const editRolePermission = accessCheckError(["ROLES_UPDATE"]);
 	const deleteRolePermission = accessCheckError(["ROLES_DELETE"]);
 
-	const rows = roles.map((role) => (
+	const rows = getRoles.data?.map((role) => (
 		<Table.Tr key={role.id}>
 			<Table.Td>
 				<Group gap="sm">
@@ -78,12 +86,22 @@ export default function RolesTable() {
 							<ActionIcon
 								variant="subtle"
 								color="red"
-								onClick={() => removeRole(role.id)}
+								onClick={() => {
+									setLoading(true);
+									deleteRole.mutate(role.id);
+								}}
 							>
-								<IconTrash
-									style={{ width: rem(16), height: rem(16) }}
-									stroke={1.5}
-								/>
+								{loading ? (
+									<Loader color="red" />
+								) : (
+									<IconTrash
+										style={{
+											width: rem(16),
+											height: rem(16)
+										}}
+										stroke={1.5}
+									/>
+								)}
 							</ActionIcon>
 						)}
 					</Group>
@@ -94,7 +112,7 @@ export default function RolesTable() {
 
 	return (
 		<>
-			{isRoleLoading ? (
+			{!getRoles.data ? (
 				<Center h="100%">
 					<Loader />
 				</Center>

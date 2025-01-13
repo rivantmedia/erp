@@ -5,6 +5,7 @@ import "./globals.css";
 
 import { MantineProvider } from "@mantine/core";
 import SessionWrapper from "@/components/SessionWrapper";
+import Provider from "./_trpc/Provider";
 
 export const metadata: Metadata = {
 	title: "Rivant Media ERP",
@@ -21,7 +22,7 @@ export default function RootLayout({
 			<body>
 				<SessionWrapper>
 					<MantineProvider defaultColorScheme="dark">
-						{children}
+						<Provider>{children}</Provider>
 					</MantineProvider>
 				</SessionWrapper>
 			</body>

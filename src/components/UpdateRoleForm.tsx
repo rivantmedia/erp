@@ -1,4 +1,4 @@
-import { Role, useRoles } from "@/context/RolesContext";
+import { trpc } from "@/app/_trpc/client";
 import Roles from "@/lib/UserPermissions";
 import { Checkbox, Notification, SimpleGrid } from "@mantine/core";
 import {
@@ -10,27 +10,32 @@ import {
 	TextInput
 } from "@mantine/core";
 import { hasLength, useForm } from "@mantine/form";
+import { Role } from "@prisma/client";
 import { useState } from "react";
-
-interface RoleFormValues {
-	id: string;
-	name: string;
-	index: number;
-	permissions: number;
-}
 
 function UpdateRoleForm({ role }: { role: Role }) {
 	const [notification, setNotification] = useState<{
 		message: string;
 		error: boolean;
 	} | null>(null);
-	const { isChangeLoading, editRole } = useRoles() as {
-		isChangeLoading: boolean;
-		editRole: (values: RoleFormValues) => {
-			message: string;
-			error: boolean;
-		};
-	};
+	const [isChangeLoading, setIsChangeLoading] = useState(false);
+	const getRoles = trpc.getRoles.useQuery();
+	const editRole = trpc.updateRole.useMutation({
+		onSuccess: () => {
+			getRoles.refetch();
+			setNotification({
+				message: "Role updated successfully",
+				error: false
+			});
+		},
+		onSettled: () => setIsChangeLoading(false),
+		onError: (err) => {
+			setNotification({
+				message: err.message,
+				error: true
+			});
+		}
+	});
 	const form = useForm({
 		mode: "uncontrolled",
 		initialValues: {
@@ -55,10 +60,10 @@ function UpdateRoleForm({ role }: { role: Role }) {
 		}
 	});
 
-	async function handleForm(values: RoleFormValues) {
+	async function handleForm(values: typeof form.values) {
 		if (form.isValid()) {
-			const res = await editRole(values);
-			setNotification(res);
+			setIsChangeLoading(true);
+			editRole.mutate(values);
 		}
 	}
 

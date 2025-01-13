@@ -1,4 +1,4 @@
-import { useTasks } from "@/context/TasksContext";
+import { trpc } from "@/app/_trpc/client";
 import {
 	Box,
 	Button,
@@ -10,23 +10,29 @@ import {
 import { hasLength, useForm } from "@mantine/form";
 import { useState } from "react";
 
-interface SubmissionFormValues {
-	note: string;
-	taskId: string;
-}
-
 function CreateSubmissionForm({ taskId }: { taskId: string }) {
 	const [notification, setNotification] = useState<{
 		message: string;
 		error: boolean;
 	} | null>(null);
-	const { addSubmission, isChangeLoading } = useTasks() as {
-		addSubmission: (submission: SubmissionFormValues) => {
-			message: string;
-			error: boolean;
-		};
-		isChangeLoading: boolean;
-	};
+	const [isChangeLoading, setIsChangeLoading] = useState(false);
+	const getTask = trpc.getTasks.useQuery();
+	const addSubmission = trpc.addSubmission.useMutation({
+		onSuccess: () => {
+			getTask.refetch();
+			setNotification({
+				message: "Submission added successfully",
+				error: false
+			});
+		},
+		onSettled: () => setIsChangeLoading(false),
+		onError: (error) => {
+			setNotification({
+				message: error.message,
+				error: true
+			});
+		}
+	});
 	const form = useForm({
 		mode: "uncontrolled",
 		initialValues: {
@@ -41,13 +47,11 @@ function CreateSubmissionForm({ taskId }: { taskId: string }) {
 		}
 	});
 
-	async function handleForm(values: SubmissionFormValues) {
+	async function handleForm(values: typeof form.values) {
 		if (form.isValid()) {
-			const res = await addSubmission(values);
-			if (!res.error) {
-				form.reset();
-			}
-			setNotification(res);
+			setIsChangeLoading(true);
+			addSubmission.mutate(values);
+			form.reset();
 		}
 	}
 
