@@ -5,21 +5,22 @@ import { TRPCError } from "@trpc/server";
 
 const prisma = new PrismaClient();
 
-export const AddLeaveSchema = yup.object({
+export const UpdateLeaveSchema = yup.object({
+	id: yup.string().required(),
 	employeeId: yup.string().required(),
 	leaveReason: yup.string().required(),
 	fromDate: yup.date().required(),
 	toDate: yup.date().required(),
 	reference: yup.string().required(),
-	createdBy: yup.string().required()
+	modifiedBy: yup.string().required()
 });
 
-type LeaveInput = yup.InferType<typeof AddLeaveSchema>;
+type LeaveInput = yup.InferType<typeof UpdateLeaveSchema>;
 
-export async function addLeave(opts: { input: LeaveInput }) {
+export async function updateLeave(opts: { input: LeaveInput }) {
 	const accessError = await accessCheckError([
-		"EMPLOYEES_READ",
-		"LEAVES_CREATE"
+		"LEAVES_READ",
+		"LEAVES_UPDATE"
 	]);
 
 	if (accessError) {
@@ -30,16 +31,26 @@ export async function addLeave(opts: { input: LeaveInput }) {
 	}
 
 	try {
-		await prisma.leave.create({
-			data: opts.input
+		await prisma.leave.update({
+			where: {
+				id: opts.input.id
+			},
+			data: {
+				employeeId: opts.input.employeeId,
+				leaveReason: opts.input.leaveReason,
+				fromDate: opts.input.fromDate,
+				toDate: opts.input.toDate,
+				reference: opts.input.reference,
+				modifiedBy: opts.input.modifiedBy
+			}
 		});
 
 		return true;
 	} catch (e) {
-		console.log("Failed to create task", e);
+		console.log("Failed to update task", e);
 		throw new TRPCError({
 			code: "INTERNAL_SERVER_ERROR",
-			message: "Failed to create task"
+			message: "Failed to update task"
 		});
 	}
 }

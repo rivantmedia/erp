@@ -23,7 +23,7 @@ type TaskInput = yup.InferType<typeof AddTaskSchema>;
 
 export async function addTask(opts: { input: TaskInput }) {
 	const accessError = await accessCheckError([
-		"EMPLOYEES_READ",
+		"EMPLOYEES_READ_BASIC_INFO",
 		"TASKS_CREATE"
 	]);
 

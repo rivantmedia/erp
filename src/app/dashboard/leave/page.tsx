@@ -1,12 +1,15 @@
 "use client";
 
 import ModalContainer from "@/components/ModalContainer";
-import { Group, Text } from "@mantine/core";
-import CreateRoleForm from "@/components/CreateRoleForm";
+import { Button, Group, Text } from "@mantine/core";
 import { useRoles } from "@/context/RolesContext";
 import { PermissionsResolvable } from "@/lib/UserPermissions";
+import CreateLeaveForm from "@/components/CreateLeaveForm";
+import { useToggle } from "@mantine/hooks";
+import LeaveTable from "@/components/LeaveTable";
 
 export default function Main() {
+	const [value, toggle] = useToggle([false, true]);
 	const { accessCheckError } = useRoles() as {
 		accessCheckError: (
 			permissionRequired: PermissionsResolvable
@@ -15,17 +18,22 @@ export default function Main() {
 	const createLeavePermission = accessCheckError(["LEAVES_CREATE"]);
 	const readLeavePermission = accessCheckError(["LEAVES_READ"]);
 
+	const displayUI = value ? "Leave Dashboard" : <LeaveTable />;
+
 	return (
 		<div>
 			{createLeavePermission && (
 				<Group justify="flex-end">
+					<Button onClick={() => toggle()}>
+						{value ? "Show Leave Table" : "Show Leave Dashboard"}
+					</Button>
 					<ModalContainer title="Add Leave">
-						<CreateRoleForm />
+						<CreateLeaveForm />
 					</ModalContainer>
 				</Group>
 			)}
 			{readLeavePermission ? (
-				"Leaves Table"
+				displayUI
 			) : (
 				<Text
 					size="xl"
