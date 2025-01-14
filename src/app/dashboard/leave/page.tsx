@@ -7,6 +7,7 @@ import { PermissionsResolvable } from "@/lib/UserPermissions";
 import CreateLeaveForm from "@/components/CreateLeaveForm";
 import { useToggle } from "@mantine/hooks";
 import LeaveTable from "@/components/LeaveTable";
+import LeaveGanttDashboard from "@/components/LeaveGanttDashboard";
 
 export default function Main() {
 	const [value, toggle] = useToggle([false, true]);
@@ -18,7 +19,7 @@ export default function Main() {
 	const createLeavePermission = accessCheckError(["LEAVES_CREATE"]);
 	const readLeavePermission = accessCheckError(["LEAVES_READ"]);
 
-	const displayUI = value ? "Leave Dashboard" : <LeaveTable />;
+	const displayUI = value ? <LeaveGanttDashboard /> : <LeaveTable />;
 
 	return (
 		<div>

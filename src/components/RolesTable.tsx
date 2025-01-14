@@ -12,7 +12,6 @@ import {
 	Center
 } from "@mantine/core";
 import { IconTrash } from "@tabler/icons-react";
-import { useSession } from "next-auth/react";
 import ModalContainer from "./ModalContainer";
 import UserPermissions, { PermissionsResolvable } from "@/lib/UserPermissions";
 import UpdateRoleForm from "./UpdateRoleForm";
@@ -20,7 +19,6 @@ import { trpc } from "@/app/_trpc/client";
 import { useState } from "react";
 
 export default function RolesTable() {
-	const { data: session } = useSession();
 	const [loading, setLoading] = useState(false);
 	const getRoles = trpc.getRoles.useQuery();
 	const deleteRole = trpc.deleteRole.useMutation({
@@ -68,7 +66,7 @@ export default function RolesTable() {
 				)}
 			</Table.Td>
 			<Table.Td>
-				{session?.user.sAdmin && (
+				{
 					<Group
 						gap={0}
 						justify="flex-end"
@@ -105,7 +103,7 @@ export default function RolesTable() {
 							</ActionIcon>
 						)}
 					</Group>
-				)}
+				}
 			</Table.Td>
 		</Table.Tr>
 	));

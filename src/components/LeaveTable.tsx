@@ -1,115 +1,237 @@
 "use client";
 
 import {
-	Badge,
 	Table,
 	Group,
 	Text,
-	Anchor,
 	Center,
 	Loader,
-	Select
+	Select,
+	ActionIcon,
+	rem
 } from "@mantine/core";
-import DrawerContainer from "./DrawerContainer";
-import { useRoles } from "@/context/RolesContext";
-import { PermissionsResolvable } from "@/lib/UserPermissions";
-import EmployeeDetail from "./EmployeeDetail";
-import { trpc } from "@/app/_trpc/client";
-import { Employee } from "@prisma/client";
+import { getLeaveOutput, trpc } from "@/app/_trpc/client";
 import { DatePickerInput } from "@mantine/dates";
+``;
 import { useState } from "react";
+import { PermissionsResolvable } from "@/lib/UserPermissions";
+import { useRoles } from "@/context/RolesContext";
+import ModalContainer from "./ModalContainer";
+import { IconTrash } from "@tabler/icons-react";
+import UpdateLeaveForm from "./UpdateLeaveForm";
 
 const filterOptions = [
-	{ label: "All", value: "0" },
 	{ label: "Today", value: "1" },
 	{ label: "This Week", value: "2" },
 	{ label: "This Month", value: "3" },
 	{ label: "Custom Time", value: "4" }
 ];
 
+const initialFilters = {
+	employeeId: "",
+	timeRange: ""
+};
+
 export default function LeaveTable() {
-	const [date, setDate] = useState<[Date | null, Date | null]>([null, null]);
-	const [filters, setFilters] = useState({
-		employeeId: "",
-		timeRange: "0",
-		customRange: { from: "", to: "" }
-	});
+	const [loading, setLoading] = useState(false);
+	const [customDate, setCustomDate] = useState<[Date | null, Date | null]>([
+		null,
+		null
+	]);
+	const [filters, setFilters] = useState(initialFilters);
 	const { accessCheckError } = useRoles() as {
 		accessCheckError: (
 			permissionRequired: PermissionsResolvable
 		) => boolean;
 	};
+	const getLeaves = trpc.getLeaves.useQuery();
+	const deleteLeave = trpc.deleteLeave.useMutation({
+		onSuccess: () => {
+			getLeaves.refetch();
+		},
+		onSettled: () => {
+			setLoading(false);
+		}
+	});
+	const leaves = getLeaves.data?.filter((leave) => {
+		if (filters.employeeId && filters.timeRange) {
+			return (
+				leave.employeeId === filters.employeeId &&
+				CheckLeaveInTime(leave)
+			);
+		}
+
+		if (filters.employeeId) {
+			return leave.employeeId === filters.employeeId;
+		}
+
+		if (filters.timeRange) return CheckLeaveInTime(leave);
+
+		return true;
+	});
 	const getEmployees = trpc.getEmployees.useQuery();
 
-	const employeeViewDetailsPermission = accessCheckError([
-		"EMPLOYEES_READ_BASIC_INFO"
-	]);
-	const employeeViewSensitiveDetailsPermission = accessCheckError([
-		"EMPLOYEES_READ_SENSITIVE_INFO"
-	]);
+	const editLeavePermission = accessCheckError(["LEAVES_UPDATE"]);
+	const deleteLeavePermission = accessCheckError(["LEAVES_DELETE"]);
 
-	function handleTimeChange(value: string | null) {
-		setFilters((prev) => ({ ...prev, timeRange: value as string }));
+	function CheckLeaveInTime(leave: getLeaveOutput[0]) {
+		const today = new Date();
+		const fromDate = new Date(leave.fromDate);
+		const toDate = new Date(leave.toDate);
+
+		if (filters.timeRange === "1") {
+			return today >= fromDate && today <= toDate;
+		}
+
+		if (filters.timeRange === "2") {
+			const weekStart = new Date(
+				today.setDate(today.getDate() - today.getDay())
+			);
+			const weekEnd = new Date(today.setDate(weekStart.getDate() + 6));
+			return fromDate <= weekEnd && toDate >= weekStart;
+		}
+
+		if (filters.timeRange === "3") {
+			const monthStart = new Date(
+				today.getFullYear(),
+				today.getMonth(),
+				1
+			);
+			const monthEnd = new Date(
+				today.getFullYear(),
+				today.getMonth() + 1,
+				0
+			);
+			return fromDate <= monthEnd && toDate >= monthStart;
+		}
+
+		// if (filters.timeRange === "4") {
+		// 	return leave.fromDate <= customDate[1] && leave.toDate >= customDate[0];
+		// }
 	}
 
-	const rows = getEmployees.data?.map((employee) => (
-		<Table.Tr key={employee.employeeId}>
+	const rows = leaves?.map((leave) => (
+		<Table.Tr key={leave.id}>
 			<Table.Td>
 				<Group gap="sm">
 					<Text
 						fz="sm"
 						fw={500}
 					>
-						{employee.fname} {employee.lname}
+						{leave.employee.fname} {leave.employee.lname}
 					</Text>
 				</Group>
 			</Table.Td>
 
 			<Table.Td>
-				<Badge variant="light">{employee.title}</Badge>
-			</Table.Td>
-			<Table.Td>
-				<Anchor
-					href={`mailto:${employee.email}`}
-					size="sm"
+				<Text
+					fz="sm"
+					fw={500}
 				>
-					{employee.email}
-				</Anchor>
+					{leave.leaveReason}
+				</Text>
 			</Table.Td>
 			<Table.Td>
-				<Text fz="sm">{employee.contact}</Text>
-			</Table.Td>
-			<Table.Td>
-				<Group
-					gap={0}
-					justify="flex-end"
+				<Text
+					fz="sm"
+					fw={500}
 				>
-					{(employeeViewDetailsPermission ||
-						employeeViewSensitiveDetailsPermission) && (
-						<DrawerContainer title="View Details">
-							<EmployeeDetail employee={employee as Employee} />
-						</DrawerContainer>
-					)}
-				</Group>
+					{new Date(leave.fromDate).toLocaleDateString()}
+				</Text>
+			</Table.Td>
+			<Table.Td>
+				<Text
+					fz="sm"
+					fw={500}
+				>
+					{new Date(leave.toDate).toLocaleDateString()}
+				</Text>
+			</Table.Td>
+			<Table.Td>
+				<Text
+					fz="sm"
+					fw={500}
+				>
+					{leave.reference}
+				</Text>
+			</Table.Td>
+			<Table.Td>
+				<Text
+					fz="sm"
+					fw={500}
+				>
+					{leave.creator.fname} {leave.creator.lname} on{" "}
+					{new Date(leave.createdAt).toLocaleDateString()}
+				</Text>
+			</Table.Td>
+			<Table.Td>
+				{
+					<Group
+						gap={0}
+						justify="flex-end"
+					>
+						{editLeavePermission && (
+							<ModalContainer
+								title="Edit Leave"
+								type="edit"
+								size="md"
+							>
+								<UpdateLeaveForm leave={leave} />
+							</ModalContainer>
+						)}
+						{deleteLeavePermission && (
+							<ActionIcon
+								variant="subtle"
+								color="red"
+								onClick={() => {
+									setLoading(true);
+									deleteLeave.mutate(leave.id);
+								}}
+							>
+								{loading ? (
+									<Loader color="red" />
+								) : (
+									<IconTrash
+										style={{
+											width: rem(16),
+											height: rem(16)
+										}}
+										stroke={1.5}
+									/>
+								)}
+							</ActionIcon>
+						)}
+					</Group>
+				}
 			</Table.Td>
 		</Table.Tr>
 	));
 
 	return (
 		<>
-			{!getEmployees.data ? (
+			{!getLeaves.data ? (
 				<Center
 					h="100%"
 					mt="lg"
 				>
 					<Loader />
 				</Center>
-			) : getEmployees.data.length !== 0 ? (
+			) : getLeaves.data.length !== 0 ? (
 				<>
-					<Group justify="flex-start">
+					<Group
+						justify="flex-start"
+						mt="md"
+					>
 						<Select
 							placeholder="Filter Using Employee"
-							mt="md"
+							value={filters.employeeId}
+							clearable
+							onChange={(value) =>
+								setFilters((prev) => ({
+									...prev,
+									employeeId: value as string
+								}))
+							}
 							data={getEmployees.data?.map((e) => ({
 								label: `${e.fname} ${e.lname}`,
 								value: e.id as string
@@ -118,8 +240,13 @@ export default function LeaveTable() {
 						<Select
 							placeholder="Filter Using Time"
 							value={filters.timeRange}
-							onChange={(value) => handleTimeChange(value)}
-							mt="md"
+							clearable
+							onChange={(value) =>
+								setFilters((prev) => ({
+									...prev,
+									timeRange: value as string
+								}))
+							}
 							data={filterOptions.map((r) => ({
 								label: r.label,
 								value: r.value
@@ -128,11 +255,11 @@ export default function LeaveTable() {
 						{filters.timeRange === "4" && (
 							<DatePickerInput
 								type="range"
-								mt="md"
 								allowSingleDateInRange
 								placeholder="Pick Custom Time"
-								value={date}
-								onChange={setDate}
+								clearable
+								value={customDate}
+								onChange={setCustomDate}
 							/>
 						)}
 					</Group>
@@ -141,9 +268,11 @@ export default function LeaveTable() {
 							<Table.Thead>
 								<Table.Tr>
 									<Table.Th>Employee</Table.Th>
-									<Table.Th>Job title</Table.Th>
-									<Table.Th>Email</Table.Th>
-									<Table.Th>Phone</Table.Th>
+									<Table.Th>Reason for Leave</Table.Th>
+									<Table.Th>From</Table.Th>
+									<Table.Th>To</Table.Th>
+									<Table.Th>Reference</Table.Th>
+									<Table.Th>Created By</Table.Th>
 									<Table.Th />
 								</Table.Tr>
 							</Table.Thead>

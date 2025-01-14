@@ -1,10 +1,10 @@
-import { trpc } from "@/app/_trpc/client";
+import { getLeaveOutput, trpc } from "@/app/_trpc/client";
 import { Notification, Select, Textarea } from "@mantine/core";
 import { Box, Button, Group, LoadingOverlay } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { hasLength, isNotEmpty, useForm } from "@mantine/form";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const referenceData = [
 	{ label: "Via Call" },
@@ -13,7 +13,7 @@ const referenceData = [
 	{ label: "Via Custom Text" }
 ];
 
-function CreateLeaveForm() {
+function UpdateLeaveForm({ leave }: { leave: getLeaveOutput[0] }) {
 	const [notification, setNotification] = useState<{
 		message: string;
 		error: boolean;
@@ -23,11 +23,11 @@ function CreateLeaveForm() {
 	const [isChangeLoading, setIsChangeLoading] = useState(false);
 	const getEmployees = trpc.getEmployees.useQuery();
 	const getLeaves = trpc.getLeaves.useQuery();
-	const addLeave = trpc.addLeave.useMutation({
+	const updateLeave = trpc.updateLeave.useMutation({
 		onSuccess: () => {
 			getLeaves.refetch();
 			setNotification({
-				message: "Leave Added Successfully",
+				message: "Leave Updated Successfully",
 				error: false
 			});
 		},
@@ -40,9 +40,9 @@ function CreateLeaveForm() {
 	const form = useForm({
 		mode: "uncontrolled",
 		initialValues: {
-			employeeId: "",
-			leaveReason: "",
-			reference: ""
+			employeeId: leave.employeeId || "",
+			leaveReason: leave.leaveReason || "",
+			reference: leave.reference || ""
 		},
 		validate: {
 			employeeId: isNotEmpty("Employee is required"),
@@ -54,22 +54,29 @@ function CreateLeaveForm() {
 		}
 	});
 
+	useEffect(() => {
+		if (leave) {
+			setDate([new Date(leave.fromDate), new Date(leave.toDate)]);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	async function handleForm(values: typeof form.values) {
+		setIsChangeLoading(true);
 		const [start, end] = date;
 		if (start === null || end === null) {
 			form.setErrors({ start: "Leave Duration Empty" });
 			return;
 		}
-		const newLeave = {
+		const leaveData = {
 			...values,
+			id: leave.id,
 			fromDate: start,
 			toDate: end,
-			createdBy: session?.user.id as string
+			modifiedBy: session?.user.id as string
 		};
 		if (form.isValid()) {
-			setIsChangeLoading(true);
-			addLeave.mutate(newLeave);
-			form.reset();
+			updateLeave.mutate(leaveData);
 		}
 	}
 
@@ -144,4 +151,4 @@ function CreateLeaveForm() {
 	);
 }
 
-export default CreateLeaveForm;
+export default UpdateLeaveForm;
