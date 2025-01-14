@@ -12,7 +12,6 @@ import {
 } from "@mantine/core";
 import { getLeaveOutput, trpc } from "@/app/_trpc/client";
 import { DatePickerInput } from "@mantine/dates";
-``;
 import { useState } from "react";
 import { PermissionsResolvable } from "@/lib/UserPermissions";
 import { useRoles } from "@/context/RolesContext";
