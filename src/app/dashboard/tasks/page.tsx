@@ -70,6 +70,7 @@ export default function Main() {
 						tasks={tasksAssignedByOther as getTaskOutput}
 						taskEditPermission={taskEditAllPermission}
 						taskDeletePermission={taskDeleteAllPermission}
+						loading={getTasks.isLoading}
 					/>
 				</>
 			)}
@@ -89,6 +90,7 @@ export default function Main() {
 						tasks={tasksAssignedToYou as getTaskOutput}
 						taskEditPermission={false}
 						taskDeletePermission={false}
+						loading={getTasks.isLoading}
 					/>
 					<Text
 						mt="xl"
@@ -104,6 +106,7 @@ export default function Main() {
 						tasks={tasksAssignedByYou as getTaskOutput}
 						taskEditPermission={true}
 						taskDeletePermission={true}
+						loading={getTasks.isLoading}
 					/>
 				</>
 			)}
