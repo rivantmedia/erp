@@ -89,17 +89,13 @@ export default function RolesTable() {
 									deleteRole.mutate(role.id);
 								}}
 							>
-								{loading ? (
-									<Loader color="red" />
-								) : (
-									<IconTrash
-										style={{
-											width: rem(16),
-											height: rem(16)
-										}}
-										stroke={1.5}
-									/>
-								)}
+								<IconTrash
+									style={{
+										width: rem(16),
+										height: rem(16)
+									}}
+									stroke={1.5}
+								/>
 							</ActionIcon>
 						)}
 					</Group>
@@ -110,11 +106,19 @@ export default function RolesTable() {
 
 	return (
 		<>
-			{!getRoles.data ? (
+			{getRoles.isLoading || loading ? (
 				<Center h="100%">
 					<Loader />
 				</Center>
-			) : (
+			) : getRoles.isError ? (
+				<Text
+					ta="center"
+					my="xl"
+					color="red"
+				>
+					Something Went Wrong!!
+				</Text>
+			) : getRoles.data?.length !== 0 ? (
 				<Table.ScrollContainer minWidth={800}>
 					<Table verticalSpacing="sm">
 						<Table.Thead>
@@ -127,6 +131,13 @@ export default function RolesTable() {
 						<Table.Tbody>{rows}</Table.Tbody>
 					</Table>
 				</Table.ScrollContainer>
+			) : (
+				<Text
+					ta="center"
+					my="xl"
+				>
+					No Roles Present
+				</Text>
 			)}
 		</>
 	);

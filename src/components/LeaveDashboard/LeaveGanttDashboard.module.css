@@ -1,0 +1,59 @@
+.ganttContainer {
+	position: relative;
+}
+
+.ganttHeader {
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	background-color: #1971c2;
+	border-bottom: 1px solid #fff;
+}
+
+.ganttGrid {
+	display: grid;
+	grid-template-columns: 200px 1fr;
+	gap: 1rem;
+}
+
+.daysGrid {
+	display: grid;
+	grid-template-columns: repeat(31, minmax(40px, 1fr));
+	gap: 0.25rem;
+}
+
+.dayCell {
+	padding: 0.5rem;
+	text-align: center;
+	font-weight: 500;
+}
+
+.employeeRow {
+	display: grid;
+	grid-template-columns: 200px 1fr;
+	gap: 1rem;
+	padding: 0.5rem 0;
+	border-bottom: 1px solid #fff;
+}
+
+.employeeInfo {
+	padding: 0.5rem;
+}
+
+.employeeName {
+	font-weight: 500;
+}
+
+.employeeRole {
+	font-size: 0.875rem;
+	color: gray;
+}
+
+.leaveCell {
+	height: 3rem;
+	border-radius: 0.125rem;
+}
+
+.leave {
+	background-color: #1971c2;
+}

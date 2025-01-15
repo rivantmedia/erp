@@ -104,9 +104,9 @@ export default function LeaveTable() {
 			return fromDate <= monthEnd && toDate >= monthStart;
 		}
 
-		// if (filters.timeRange === "4") {
-		// 	return leave.fromDate <= customDate[1] && leave.toDate >= customDate[0];
-		// }
+		if (filters.timeRange === "4" && customDate[0] && customDate[1]) {
+			return fromDate <= customDate[1] && toDate >= customDate[0];
+		}
 	}
 
 	const rows = leaves?.map((leave) => (
@@ -187,17 +187,13 @@ export default function LeaveTable() {
 									deleteLeave.mutate(leave.id);
 								}}
 							>
-								{loading ? (
-									<Loader color="red" />
-								) : (
-									<IconTrash
-										style={{
-											width: rem(16),
-											height: rem(16)
-										}}
-										stroke={1.5}
-									/>
-								)}
+								<IconTrash
+									style={{
+										width: rem(16),
+										height: rem(16)
+									}}
+									stroke={1.5}
+								/>
 							</ActionIcon>
 						)}
 					</Group>
@@ -208,14 +204,22 @@ export default function LeaveTable() {
 
 	return (
 		<>
-			{!getLeaves.data ? (
+			{getLeaves.isLoading || loading ? (
 				<Center
 					h="100%"
 					mt="lg"
 				>
 					<Loader />
 				</Center>
-			) : getLeaves.data.length !== 0 ? (
+			) : getLeaves.isError ? (
+				<Text
+					ta="center"
+					my="xl"
+					color="red"
+				>
+					Something Went Wrong!!
+				</Text>
+			) : getLeaves.data?.length !== 0 ? (
 				<>
 					<Group
 						justify="flex-start"
@@ -280,7 +284,12 @@ export default function LeaveTable() {
 					</Table.ScrollContainer>
 				</>
 			) : (
-				<Text ta="center">No Leave Record Present</Text>
+				<Text
+					ta="center"
+					my="xl"
+				>
+					No Leave Record Present
+				</Text>
 			)}
 		</>
 	);
