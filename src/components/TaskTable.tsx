@@ -1,21 +1,41 @@
 "use client";
 
-import { Badge, Table, Group, Text, Loader, Center } from "@mantine/core";
+import {
+	Badge,
+	Table,
+	Group,
+	Text,
+	Loader,
+	Center,
+	Button
+} from "@mantine/core";
 import DrawerContainer from "@/components/DrawerContainer";
 import TaskDetails from "./TaskDetails";
 import SubmissionDetails from "./SubmissionDetails";
 import { getTaskOutput } from "@/app/_trpc/client";
+import { useState } from "react";
 
 export default function TaskTable({
 	tasks,
 	taskEditPermission,
-	taskDeletePermission
+	taskDeletePermission,
+	loading
 }: {
 	tasks: getTaskOutput;
 	taskEditPermission: boolean;
 	taskDeletePermission: boolean;
+	loading: boolean;
 }) {
-	const rows = tasks.map((task) => (
+	const [showArchiveTask, setShowArchiveTask] = useState(false);
+	const displayTasks = !showArchiveTask
+		? tasks.filter((task) =>
+				task.Submissions.length !== 0
+					? task.Submissions[task.Submissions.length - 1].status !==
+					  "accepted"
+					: true
+		  )
+		: tasks;
+	const rows = displayTasks.map((task) => (
 		<Table.Tr key={task.id}>
 			<Table.Td>
 				<Group gap="sm">
@@ -75,7 +95,7 @@ export default function TaskTable({
 
 	return (
 		<>
-			{!tasks ? (
+			{loading ? (
 				<Center
 					h="100%"
 					mt="lg"
@@ -83,22 +103,34 @@ export default function TaskTable({
 					<Loader />
 				</Center>
 			) : tasks.length !== 0 ? (
-				<Table.ScrollContainer minWidth={800}>
-					<Table verticalSpacing="sm">
-						<Table.Thead>
-							<Table.Tr>
-								<Table.Th>Project Name</Table.Th>
-								<Table.Th>Task Name</Table.Th>
-								<Table.Th>Due Date</Table.Th>
-								<Table.Th>Assigned To</Table.Th>
-								<Table.Th>Creator</Table.Th>
-								<Table.Th>Details</Table.Th>
-								<Table.Th>Submissions</Table.Th>
-							</Table.Tr>
-						</Table.Thead>
-						<Table.Tbody>{rows}</Table.Tbody>
-					</Table>
-				</Table.ScrollContainer>
+				<>
+					<Group
+						justify="flex-end"
+						mt="md"
+					>
+						<Button onClick={() => setShowArchiveTask((p) => !p)}>
+							Show Completed Tasks
+						</Button>
+					</Group>
+					{displayTasks.length !== 0 && (
+						<Table.ScrollContainer minWidth={800}>
+							<Table verticalSpacing="sm">
+								<Table.Thead>
+									<Table.Tr>
+										<Table.Th>Project Name</Table.Th>
+										<Table.Th>Task Name</Table.Th>
+										<Table.Th>Due Date</Table.Th>
+										<Table.Th>Assigned To</Table.Th>
+										<Table.Th>Creator</Table.Th>
+										<Table.Th>Details</Table.Th>
+										<Table.Th>Submissions</Table.Th>
+									</Table.Tr>
+								</Table.Thead>
+								<Table.Tbody>{rows}</Table.Tbody>
+							</Table>
+						</Table.ScrollContainer>
+					)}
+				</>
 			) : (
 				<Text ta="center">No Task Present</Text>
 			)}

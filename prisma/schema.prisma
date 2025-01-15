@@ -16,7 +16,7 @@ model Employee {
   department      String
   contact         Int
   title           String
-  role            Role     @relation(fields: [roleId], references: [id])
+  role            Role      @relation(fields: [roleId], references: [id])
   sAdmin          Boolean
   roleId          String    @db.ObjectId
   type            String?
@@ -45,6 +45,9 @@ model Employee {
   extEligible     Boolean?
   assignedTasks   Task[]    @relation("AssignedTasks")
   createdTasks    Task[]    @relation("CreatedTasks")
+  leaves          Leave[]   @relation("EmployeeLeave")
+  leavesCreated   Leave[]   @relation("LeaveCreator")
+  leavesModified  Leave[]   @relation("LeaveModifier")
 }
 
 model Asset {
@@ -96,4 +99,20 @@ model Role {
   name        String
   permissions Int
   Employee    Employee[]
+}
+
+model Leave {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId  String    @db.ObjectId
+  employee    Employee  @relation("EmployeeLeave", fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveReason String   
+  fromDate    DateTime
+  toDate      DateTime
+  reference   String
+  createdBy   String    @db.ObjectId
+  creator     Employee  @relation("LeaveCreator", fields: [createdBy], references: [id])
+  createdAt   DateTime  @default(now())
+  modifiedBy  String?   @db.ObjectId
+  modifier    Employee? @relation("LeaveModifier", fields: [modifiedBy], references: [id])
+  modifiedAt  DateTime? @updatedAt
 }

@@ -16,7 +16,8 @@ const linksData = [
 	{ label: "Assets/Equipment", href: "assets" },
 	{ label: "Document", href: "document" },
 	{ label: "Projects", href: "project" },
-	{ label: "Roles", href: "role" }
+	{ label: "Roles", href: "role" },
+	{ label: "Leaves", href: "leave" }
 ];
 
 export default function Dashboard({ children }: { children: React.ReactNode }) {

@@ -76,14 +76,22 @@ export default function EmployeeTable() {
 
 	return (
 		<>
-			{!getEmployees.data ? (
+			{getEmployees.isLoading ? (
 				<Center
 					h="100%"
 					mt="lg"
 				>
 					<Loader />
 				</Center>
-			) : getEmployees.data.length !== 0 ? (
+			) : getEmployees.isError ? (
+				<Text
+					ta="center"
+					my="xl"
+					color="red"
+				>
+					Something Went Wrong!!
+				</Text>
+			) : getEmployees.data?.length !== 0 ? (
 				<Table.ScrollContainer minWidth={800}>
 					<Table verticalSpacing="sm">
 						<Table.Thead>
@@ -99,7 +107,12 @@ export default function EmployeeTable() {
 					</Table>
 				</Table.ScrollContainer>
 			) : (
-				<Text ta="center">No Employees Present</Text>
+				<Text
+					ta="center"
+					my="xl"
+				>
+					No Employees Present
+				</Text>
 			)}
 		</>
 	);

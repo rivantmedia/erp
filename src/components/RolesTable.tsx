@@ -12,7 +12,6 @@ import {
 	Center
 } from "@mantine/core";
 import { IconTrash } from "@tabler/icons-react";
-import { useSession } from "next-auth/react";
 import ModalContainer from "./ModalContainer";
 import UserPermissions, { PermissionsResolvable } from "@/lib/UserPermissions";
 import UpdateRoleForm from "./UpdateRoleForm";
@@ -20,7 +19,6 @@ import { trpc } from "@/app/_trpc/client";
 import { useState } from "react";
 
 export default function RolesTable() {
-	const { data: session } = useSession();
 	const [loading, setLoading] = useState(false);
 	const getRoles = trpc.getRoles.useQuery();
 	const deleteRole = trpc.deleteRole.useMutation({
@@ -68,7 +66,7 @@ export default function RolesTable() {
 				)}
 			</Table.Td>
 			<Table.Td>
-				{session?.user.sAdmin && (
+				{
 					<Group
 						gap={0}
 						justify="flex-end"
@@ -91,32 +89,36 @@ export default function RolesTable() {
 									deleteRole.mutate(role.id);
 								}}
 							>
-								{loading ? (
-									<Loader color="red" />
-								) : (
-									<IconTrash
-										style={{
-											width: rem(16),
-											height: rem(16)
-										}}
-										stroke={1.5}
-									/>
-								)}
+								<IconTrash
+									style={{
+										width: rem(16),
+										height: rem(16)
+									}}
+									stroke={1.5}
+								/>
 							</ActionIcon>
 						)}
 					</Group>
-				)}
+				}
 			</Table.Td>
 		</Table.Tr>
 	));
 
 	return (
 		<>
-			{!getRoles.data ? (
+			{getRoles.isLoading || loading ? (
 				<Center h="100%">
 					<Loader />
 				</Center>
-			) : (
+			) : getRoles.isError ? (
+				<Text
+					ta="center"
+					my="xl"
+					color="red"
+				>
+					Something Went Wrong!!
+				</Text>
+			) : getRoles.data?.length !== 0 ? (
 				<Table.ScrollContainer minWidth={800}>
 					<Table verticalSpacing="sm">
 						<Table.Thead>
@@ -129,6 +131,13 @@ export default function RolesTable() {
 						<Table.Tbody>{rows}</Table.Tbody>
 					</Table>
 				</Table.ScrollContainer>
+			) : (
+				<Text
+					ta="center"
+					my="xl"
+				>
+					No Roles Present
+				</Text>
 			)}
 		</>
 	);

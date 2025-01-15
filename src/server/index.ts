@@ -25,6 +25,10 @@ import {
 	updateSubmission,
 	UpdateSubmissionSchema
 } from "@/routes/submission/updateSubmission";
+import { addLeave, AddLeaveSchema } from "@/routes/leaves/addLeave";
+import { getLeaves } from "@/routes/leaves/getLeaves";
+import { updateLeave, UpdateLeaveSchema } from "@/routes/leaves/updateLeave";
+import { deleteLeave, DeleteLeaveSchema } from "@/routes/leaves/deleteLeave";
 
 export const appRouter = router({
 	getEmployees: procedure.query(getEmployees),
@@ -46,7 +50,11 @@ export const appRouter = router({
 	addSubmission: procedure.input(AddSubmissionSchema).mutation(addSubmission),
 	updateSubmission: procedure
 		.input(UpdateSubmissionSchema)
-		.mutation(updateSubmission)
+		.mutation(updateSubmission),
+	addLeave: procedure.input(AddLeaveSchema).mutation(addLeave),
+	getLeaves: procedure.query(getLeaves),
+	updateLeave: procedure.input(UpdateLeaveSchema).mutation(updateLeave),
+	deleteLeave: procedure.input(DeleteLeaveSchema).mutation(deleteLeave)
 });
 
 export type AppRouter = typeof appRouter;

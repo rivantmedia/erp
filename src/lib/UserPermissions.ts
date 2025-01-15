@@ -86,7 +86,12 @@ export class UserPermissions extends BitField<
 		PROJECTS_READ: 1 << 20,
 		PROJECTS_READ_ALL: 1 << 21,
 		PROJECTS_UPDATE: 1 << 22,
-		PROJECTS_DELETE: 1 << 23
+		PROJECTS_DELETE: 1 << 23,
+		// LEAVES
+		LEAVES_CREATE: 1 << 24,
+		LEAVES_READ: 1 << 25,
+		LEAVES_UPDATE: 1 << 26,
+		LEAVES_DELETE: 1 << 27
 		//DOCUMENTS [NOT IMPLEMENTED]
 	} as const;
 
